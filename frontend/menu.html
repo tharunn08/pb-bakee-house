@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Menu — PB Bake House</title>
+<meta name="description" content="Browse the full PB Bake House menu — eggless cakes, pastries, breads and cookies baked fresh daily in Girinagar, Bengaluru. Order online for same-day delivery.">
+<meta name="theme-color" content="#8B4513">
+<link rel="canonical" href="https://pbbakehouse.com/menu.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PB Bake House">
+<meta property="og:title" content="The Menu — PB Bake House">
+<meta property="og:description" content="Browse the full PB Bake House menu — eggless cakes, pastries, breads and cookies baked fresh daily in Girinagar, Bengaluru. Order online for same-day delivery.">
+<meta property="og:url" content="https://pbbakehouse.com/menu.html">
+<meta property="og:image" content="https://pbbakehouse.com/images/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Menu — PB Bake House">
+<meta name="twitter:description" content="Browse the full PB Bake House menu — eggless cakes, pastries, breads and cookies baked fresh daily in Girinagar, Bengaluru.">
+<meta name="twitter:image" content="https://pbbakehouse.com/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Freshly baked</span>
+      <h2>The <span>menu</span></h2>
+      <p id="resultCount">Loading products…</p>
+    </div>
+    <div style="display:flex;gap:11px;flex-wrap:wrap;align-items:center">
+      <div class="search-wrap">
+        <input id="searchBox" placeholder="Search cakes, breads, cookies…" aria-label="Search the menu">
+        <span class="si">&#128269;</span>
+      </div>
+      <div class="sort-wrap">
+        <select id="sortBox" aria-label="Sort products">
+          <option value="new">Newest first</option>
+          <option value="popular">Most popular</option>
+          <option value="price_low">Price: low to high</option>
+          <option value="price_high">Price: high to low</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="couponStrip" class="coupon-strip hide"></div>
+
+  <div class="menu-layout">
+    <aside class="filters">
+      <div class="filter-group">
+        <h4>Categories</h4>
+        <div class="filter-list" id="catChips"></div>
+      </div>
+      <div class="filter-group">
+        <h4>Good to know</h4>
+        <div class="rule-strip" style="margin-top:0">
+          <span>&#129370; Everything eggless</span>
+          <span>&#127807; Pure veg kitchen</span>
+          <span>&#9889; Under 30 min nearby</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <h4>Need it today?</h4>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px">Pick a slot at checkout, or choose free store pickup.</p>
+        <a href="/track.html" class="btn btn-outline btn-sm btn-block">Track an order</a>
+      </div>
+    </aside>
+
+    <div>
+      <div class="active-filters" id="activeFilters" hidden></div>
+  <div class="grid" id="grid">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick view -->
+<div class="qv-bg" id="qvBg" onclick="if(event.target===this)closeQuick()">
+  <div class="qv" id="qvBody" role="dialog" aria-modal="true" aria-label="Product quick view"></div>
+</div>
+
+<script src="/js/main.js"></script>
+<script>
+mountShell('menu');
+
+// Show active coupons customers can use
+api('/coupons/active').then(({ coupons }) => {
+  if (!coupons || !coupons.length) return;
+  const strip = document.getElementById('couponStrip');
+  strip.innerHTML = `<div class="coupon-head">Offers on today — tap to copy</div><div class="coupon-cards">` +
+    coupons.map(c => {
+      const val = c.type === 'percent' ? `${c.value}% off` : `${rupee(c.value)} off`;
+      const cond = Number(c.min_order) > 0 ? `on orders above ${rupee(c.min_order)}` : 'on all orders';
+      const cap = Number(c.max_discount) > 0 && c.type === 'percent' ? ` (up to ${rupee(c.max_discount)})` : '';
+      return `<div class="coupon-card" onclick="copyCoupon('${esc(c.code)}')">
+        <div class="coupon-left"><div class="coupon-val">${val}</div><div class="coupon-cond">${cond}${cap}</div></div>
+        <div class="coupon-code">${esc(c.code)}<span>COPY</span></div>
+      </div>`;
+    }).join('') + `</div>`;
+  strip.classList.remove('hide');
+}).catch(() => {});
+
+function copyCoupon(code) {
+  navigator.clipboard?.writeText(code).then(() => toast(`Coupon ${code} copied`, 'ok')).catch(() => toast(`Use code: ${code}`, 'ok'));
+}
+
+const params = new URLSearchParams(location.search);
+let state = { category: params.get('category') || 'all', search: params.get('search') || '',
+              occasion: params.get('occasion') || '', sort: 'new' };
+document.getElementById('searchBox').value = state.search;
+
+api('/products/categories').then(({ categories }) => {
+  const el = document.getElementById('catChips');
+  el.innerHTML = `<button class="chip ${state.category === 'all' ? 'active' : ''}" data-cat="all">All items</button>` +
+    categories.map(c => `<button class="chip ${state.category === c.name ? 'active' : ''}" data-cat="${esc(c.name)}">${esc(c.name)} <span style="opacity:.6">${c.count}</span></button>`).join('');
+  el.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    state.category = b.dataset.cat;
+    el.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); load();
+  });
+});
+
+let timer;
+document.getElementById('searchBox').oninput = e => { clearTimeout(timer); timer = setTimeout(() => { state.search = e.target.value.trim(); load(); }, 350); };
+document.getElementById('sortBox').onchange = e => { state.sort = e.target.value; load(); };
+
+/* Cache the last-loaded page so Quick View needs no extra request. */
+let lastProducts = [];
+
+/* A removable chip for whichever filters are active, so a customer arriving
+   from an occasion tile can always see and undo it. */
+function paintActiveFilters() {
+  const host = document.getElementById('activeFilters');
+  if (!host) return;
+  const chips = [];
+  if (state.occasion) chips.push({ label: state.occasion, key: 'occasion' });
+  if (state.search) chips.push({ label: '\u201c' + state.search + '\u201d', key: 'search' });
+  if (state.category !== 'all') chips.push({ label: state.category, key: 'category' });
+  host.innerHTML = chips.length
+    ? chips.map(c => `<button class="afilter" onclick="dropFilter('${c.key}')">${esc(c.label)} <span>&times;</span></button>`).join('')
+      + (chips.length > 1 ? '<button class="afilter afilter-clear" onclick="location.href=\'/menu.html\'">Clear all</button>' : '')
+    : '';
+  host.hidden = !chips.length;
+}
+
+function dropFilter(key) {
+  if (key === 'category') state.category = 'all';
+  else state[key] = '';
+  if (key === 'search') { const b = document.getElementById('searchBox'); if (b) b.value = ''; }
+  const q = new URLSearchParams();
+  if (state.category !== 'all') q.set('category', state.category);
+  if (state.search) q.set('search', state.search);
+  if (state.occasion) q.set('occasion', state.occasion);
+  history.replaceState(null, '', '/menu.html' + (q.toString() ? '?' + q : ''));
+  load();
+}
+
+async function load() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<div class="skeleton"></div>'.repeat(6);
+  const q = new URLSearchParams({ limit: 100, sort: state.sort });
+  if (state.category !== 'all') q.set('category', state.category);
+  if (state.search) q.set('search', state.search);
+  if (state.occasion) q.set('occasion', state.occasion);
+  try {
+    const { products, total } = await api('/products?' + q);
+    lastProducts = products;
+    document.getElementById('resultCount').textContent = total ? `${total} item${total === 1 ? '' : 's'} on the counter today` : 'Nothing matched that';
+    paintActiveFilters();
+    grid.innerHTML = products.length ? products.map(cardWithQuick).join('')
+      : `<div class="empty" style="grid-column:1/-1"><div class="ei">&#128269;</div>
+         <p>Nothing matched that search.<br>Try a broader word, or clear the filters.</p>
+         <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="location.href='/menu.html'">Clear filters</button></div>`;
+  } catch (e) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>${esc(e.message)}</p>
+      <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="load()">Try again</button></div>`;
+  }
+}
+
+/* Add a Quick View affordance without changing the shared card. */
+function cardWithQuick(p) {
+  return productCard(p).replace(
+    '<div class="card-foot">',
+    `<button class="btn btn-ghost btn-sm" style="margin-top:10px;padding:6px 0;min-height:auto;justify-content:flex-start;font-size:12px;letter-spacing:.06em"
+       onclick="openQuick('${p.id}')">Quick view</button><div class="card-foot">`
+  );
+}
+
+function openQuick(id) {
+  const p = lastProducts.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const hasOffer = p.offer_price && Number(p.offer_price) < Number(p.price);
+  const off = hasOffer ? Math.round((1 - p.offer_price / p.price) * 100) : 0;
+  const out = p.stock <= 0 || !p.is_available;
+  const payload = JSON.stringify(p).replace(/'/g, '&#39;');
+  document.getElementById('qvBody').innerHTML = `
+    <button class="qv-close" onclick="closeQuick()" aria-label="Close">&#10005;</button>
+    <div class="qv-img">${productImage(p)}</div>
+    <div class="qv-body">
+      <div class="card-cat">${esc(p.category)}</div>
+      <h3 style="font-size:26px;font-weight:800;margin:6px 0 4px">${esc(p.name)}</h3>
+      ${Number(p.review_count) > 0 ? UI.stars(p.rating, p.review_count) : ''}
+      <p style="font-size:13.5px;color:var(--ink-soft);margin:14px 0;line-height:1.7">${esc(p.description) || 'Baked to order the morning it reaches you.'}</p>
+      <div class="price-row">
+        <span class="price">${rupee(p.offer_price || p.price)}</span>
+        ${hasOffer ? `<span class="price-old">${rupee(p.price)}</span><span class="price-off">Save ${off}%</span>` : ''}
+      </div>
+      <div class="rule-strip">
+        ${p.weight ? `<span>${esc(p.weight)}</span>` : ''}
+        <span>${p.prep_minutes || 30} min prep</span>
+        ${p.is_eggless ? '<span style="color:var(--ok)">Eggless</span>' : ''}
+        ${out ? '<span style="color:var(--red)">Sold out</span>' : '<span style="color:var(--ok)">In stock</span>'}
+      </div>
+      <div style="margin-top:auto;padding-top:24px;display:flex;gap:10px;flex-wrap:wrap">
+        ${out
+          ? '<button class="btn btn-outline btn-block" disabled>Sold out</button>'
+          : `<button class="btn btn-primary" style="flex:1" onclick='Cart.add(${payload});closeQuick()'>Add to box</button>
+             <a href="/product.html?id=${p.id}" class="btn btn-outline" style="flex:1">Full details</a>`}
+      </div>
+    </div>`;
+  document.getElementById('qvBg').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeQuick() {
+  document.getElementById('qvBg').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQuick(); });
+
+load();
+</script>
+</body>
+</html>

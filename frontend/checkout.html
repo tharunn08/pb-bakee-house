@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8B4513">
+<title>Checkout — PB Bake House</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Almost there</span>
+      <h2>Complete your <span>order</span></h2>
+      <p>Baked to order · under 30 min nearby · secure payment</p>
+    </div>
+  </div>
+
+  <div class="co-steps">
+    <div class="co-step on"><i>1</i><span>Your details</span></div><div class="co-step-line"></div>
+    <div class="co-step on"><i>2</i><span>Delivery</span></div><div class="co-step-line"></div>
+    <div class="co-step on"><i>3</i><span>Timing</span></div><div class="co-step-line"></div>
+    <div class="co-step on"><i>4</i><span>Payment</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1.35fr .85fr;gap:24px" id="layout">
+    <div>
+      <div class="panel" style="margin-bottom:20px">
+        <h3>Your details</h3>
+        <div class="field-row">
+          <div class="field"><label for="fName">Full name *</label><input id="fName" placeholder="Letters only" autocomplete="name"><div class="err-msg" id="eName"></div></div>
+          <div class="field"><label for="fPhone">Phone number *</label><input id="fPhone" type="tel" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"><div class="err-msg" id="ePhone"></div></div>
+        </div>
+        <div class="field"><label for="fEmail">Email <span style="font-weight:500;color:var(--ink-faint)">(optional — for order updates)</span></label><input id="fEmail" type="email" placeholder="you@gmail.com" autocomplete="email"><div class="err-msg" id="eEmail"></div></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <h3>Delivery or pickup</h3>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <button class="chip active" id="tabDelivery" onclick="setType('delivery')" style="flex:1">Home delivery</button>
+          <button class="chip" id="tabPickup" onclick="setType('pickup')" style="flex:1">Store pickup</button>
+        </div>
+        <div id="deliveryFields">
+          <div class="field"><label for="fAddress">Delivery address *</label><textarea id="fAddress" placeholder="House / flat number, street, landmark"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label for="fCity">City</label><input id="fCity" placeholder="City" value="Bengaluru"></div>
+            <div class="field"><label for="fPin">Pincode</label><input id="fPin" inputmode="numeric" placeholder="560085"></div>
+          </div>
+          <div class="field">
+            <label>Pin your location * <span style="font-weight:500;color:var(--ink-faint)">(so we can calculate delivery)</span></label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="useMyLocation()">Use my current location</button>
+              <button class="btn btn-outline btn-sm" onclick="toggleMap()">Pick on map</button>
+            </div>
+          </div>
+          <div id="mapPicker" class="hide">
+            <div class="map-search">
+              <input id="mapSearch" placeholder="Search an area, street or landmark" autocomplete="off">
+              <button class="btn btn-primary btn-sm" onclick="searchPlace()">Search</button>
+            </div>
+            <div id="pickMap"></div>
+            <div class="map-hint">Drag the marker or tap anywhere on the map to set the delivery point</div>
+            <div id="pickedAddr" class="picked-addr hide"></div>
+          </div>
+          <div id="quoteBox"></div>
+          <div class="rule-strip" id="ruleStrip"></div>
+        </div>
+        <div id="pickupNote" class="hide">
+          <div class="quote-box">
+            <div class="quote-line"><span>Store pickup</span><strong>FREE</strong></div>
+            <div class="quote-note" id="pickupAddr">Collect it fresh from our counter.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <h3>When do you need it?</h3>
+        <div class="field-row">
+          <div class="field"><label class="label-lg" for="fDate">Delivery date</label>
+            <div class="date-wrap"><input id="fDate" type="date" class="date-input">
+            <span class="date-ph" aria-hidden="true">DD-MM-YYYY</span></div></div>
+          <div class="field"><label class="label-lg" for="fSlot">Time slot</label>
+            <select id="fSlot"><option value="">As soon as possible</option><option>9 AM - 12 PM</option><option>12 PM - 3 PM</option><option>3 PM - 6 PM</option><option>6 PM - 9 PM</option></select>
+          </div>
+        </div>
+        <div class="field"><label for="fNotes">Special instructions</label><textarea id="fNotes" placeholder="Message on cake, allergies, gate code..."></textarea></div>
+      </div>
+
+      <div class="panel">
+        <h3>Payment</h3>
+        <div class="pay-opt sel" id="payOnline">
+          <input type="radio" name="pay" value="online" checked>
+          <div style="flex:1"><b>Pay online via Razorpay</b><div style="font-size:13px;color:var(--ink-soft)">Card, UPI or netbanking — handled by Razorpay</div></div>
+          <img src="https://razorpay.com/assets/razorpay-glyph.svg" alt="Razorpay" style="height:22px;opacity:.85" onerror="this.style.display='none'">
+        </div>
+        <div style="font-size:12.5px;color:var(--ink-faint);margin-top:6px;display:flex;align-items:center;gap:6px">Payments are encrypted end to end. We never see or store your card details.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="position:sticky;top:calc(var(--nav-h) + 18px)">
+        <h3>Order summary</h3>
+        <div id="freeHint"></div>
+        <div id="sumItems"></div>
+        <div class="field" style="margin-top:14px">
+          <label for="fCoupon">Coupon code</label>
+          <div style="display:flex;gap:8px">
+            <input id="fCoupon" placeholder="Enter a code" style="text-transform:uppercase">
+            <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
+          </div>
+          <div class="err-msg" id="eCoupon" style="color:var(--ok)"></div>
+        </div>
+        <div id="sumTotals" style="margin-top:14px"></div>
+        <button class="btn btn-red btn-block" id="placeBtn" style="margin-top:16px" onclick="placeOrder()">Pay and place order</button>
+        <p style="font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:10px">You'll get an email confirmation and live status updates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/main.js"></script>
+<script>
+mountShell();
+let orderType = 'delivery', coords = null, currentQuote = null, config = null, payMethod = 'online', appliedCoupon = '', appliedCouponData = null;
+const u = Auth.user();
+if (u) { fName.value = u.name || ''; fPhone.value = u.phone || ''; fEmail.value = u.email || ''; }
+fDate.min = new Date().toISOString().slice(0, 10);
+
+liveFilter(fName, 'name'); liveFilter(fPhone, 'phone'); liveFilter(fPin, 'pincode');
+fName.addEventListener('blur', () => mark(fName, eName, Validate.name(fName.value), 'Use letters only (min 2)'));
+fPhone.addEventListener('blur', () => mark(fPhone, ePhone, Validate.phone(fPhone.value), 'Enter a valid 10-digit mobile'));
+fEmail.addEventListener('blur', () => mark(fEmail, eEmail, !fEmail.value.trim() || Validate.gmail(fEmail.value), 'Must be a valid @gmail.com address'));
+function mark(el, errEl, ok, msg) { el.classList.toggle('bad', !ok && el.value); el.classList.toggle('good', ok); errEl.textContent = (!ok && el.value) ? msg : ''; return ok; }
+
+function loadCfg(config2) {
+  config = config2;
+  const eta = config.delivery.eta_minutes;
+  document.getElementById('ruleStrip').innerHTML =
+    `<span>⚡ Under ${eta} min delivery</span><span>Base ${rupee(config.delivery.base_fare)} up to ${config.delivery.base_km} km</span><span>+${rupee(config.delivery.per_extra_km)}/extra km</span><span>🎉 FREE above ${rupee(config.delivery.free_above)} within ${config.delivery.free_within_km} km</span>`;
+  if (config.bakery_address) document.getElementById('pickupAddr').innerHTML = 'Pickup from: <a href="'+config.maps_url+'" target="_blank" style="color:var(--blue);font-weight:700">'+esc(config.bakery_address)+'</a>';
+  renderSummary();
+}
+if (window.SITE) loadCfg(window.SITE);
+document.addEventListener('siteconfig', e => loadCfg(e.detail));
+
+function setType(t) {
+  orderType = t;
+  tabDelivery.classList.toggle('active', t === 'delivery');
+  tabPickup.classList.toggle('active', t === 'pickup');
+  deliveryFields.classList.toggle('hide', t !== 'delivery');
+  pickupNote.classList.toggle('hide', t !== 'pickup');
+  renderSummary();
+}
+/* ---------- MAP LOCATION PICKER (Leaflet + OpenStreetMap, no API key) ---------- */
+let pickMap = null, pickMarker = null;
+
+function toggleMap() {
+  const wrap = document.getElementById('mapPicker');
+  const opening = wrap.classList.contains('hide');
+  wrap.classList.toggle('hide');
+  if (opening) initMap();
+}
+
+function initMap() {
+  if (pickMap) { setTimeout(() => pickMap.invalidateSize(), 100); return; }
+  const start = coords || { lat: (window.SITE?.bakery_lat) || 12.943563, lng: (window.SITE?.bakery_lng) || 77.540188 };
+  pickMap = L.map('pickMap').setView([start.lat, start.lng], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap'
+  }).addTo(pickMap);
+
+  // Show the bakery so customers can see how far they are
+  if (window.SITE?.bakery_lat) {
+    L.circleMarker([window.SITE.bakery_lat, window.SITE.bakery_lng], {
+      radius: 8, color: '#8B4513', fillColor: '#8B4513', fillOpacity: .9, weight: 2
+    }).addTo(pickMap).bindTooltip('🎂 PB Bake House', { permanent: false });
+  }
+
+  pickMarker = L.marker([start.lat, start.lng], { draggable: true }).addTo(pickMap);
+  pickMarker.on('dragend', () => setPicked(pickMarker.getLatLng()));
+  pickMap.on('click', e => { pickMarker.setLatLng(e.latlng); setPicked(e.latlng); });
+  setTimeout(() => pickMap.invalidateSize(), 120);
+}
+
+function setPicked(ll) {
+  coords = { lat: ll.lat, lng: ll.lng };
+  reverseGeocode(ll.lat, ll.lng);
+  quoteDelivery();
+}
+
+// Turn coordinates into a readable address (helps the customer confirm the spot)
+async function reverseGeocode(lat, lng) {
+  const box = document.getElementById('pickedAddr');
+  box.classList.remove('hide');
+  box.innerHTML = '📍 Locating address…';
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`);
+    const d = await r.json();
+    if (d.display_name) {
+      box.innerHTML = `📍 <b>Selected:</b> ${esc(d.display_name)}`;
+      // Helpfully prefill the address fields if empty
+      const addr = document.getElementById('fAddress');
+      if (addr && !addr.value.trim()) {
+        const a = d.address || {};
+        addr.value = [a.house_number, a.road, a.suburb, a.neighbourhood].filter(Boolean).join(', ');
+      }
+      const pin = document.getElementById('fPin');
+      if (pin && !pin.value.trim() && d.address?.postcode) pin.value = d.address.postcode;
+      const city = document.getElementById('fCity');
+      if (city && d.address?.city) city.value = d.address.city;
+    } else box.innerHTML = `📍 Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  } catch { box.innerHTML = `📍 Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`; }
+}
+
+// Search a place by name and move the marker there
+async function searchPlace() {
+  const q = document.getElementById('mapSearch').value.trim();
+  if (!q) return toast('Type an area or landmark to search', 'err');
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + ', Bengaluru')}&limit=1`);
+    const d = await r.json();
+    if (!d.length) return toast('Place not found — try a nearby landmark', 'err');
+    const lat = parseFloat(d[0].lat), lng = parseFloat(d[0].lon);
+    pickMap.setView([lat, lng], 16);
+    pickMarker.setLatLng([lat, lng]);
+    setPicked({ lat, lng });
+  } catch { toast('Search failed, please try again', 'err'); }
+}
+
+function useMyLocation() {
+  if (!navigator.geolocation) return toast('Your browser does not support location', 'err');
+  document.getElementById('quoteBox').innerHTML = '<div class="quote-box"><div class="quote-line"><span>📍 Locating you...</span></div></div>';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      // Reflect it on the map too (if open / when opened)
+      if (pickMap && pickMarker) { pickMap.setView([coords.lat, coords.lng], 16); pickMarker.setLatLng([coords.lat, coords.lng]); }
+      reverseGeocode(coords.lat, coords.lng);
+      quoteDelivery();
+    },
+    () => {
+      document.getElementById('quoteBox').innerHTML =
+        `<div class="quote-box err"><div class="quote-line"><span>Location access denied</span></div><div class="quote-note">No problem — use \u201cPick on Map\u201d to choose your delivery point manually.</div></div>`;
+      document.getElementById('mapPicker').classList.remove('hide');
+      initMap();
+    },
+    { enableHighAccuracy: true, timeout: 10000 });
+}
+
+async function quoteDelivery() {
+  if (!coords) return;
+  const lat = coords.lat, lng = coords.lng;
+  const box = document.getElementById('quoteBox');
+  box.innerHTML = '<div class="quote-box"><div class="quote-line"><span>Calculating...</span></div></div>';
+  try {
+    const sub = Cart.subtotal();
+    const disc = computeDiscount(sub);
+    const { quote } = await api('/orders/delivery-quote', { method: 'POST', body: { lat, lng, subtotal: sub - disc } });
+    currentQuote = quote;
+    if (!quote.deliverable) {
+      box.innerHTML = `<div class="quote-box err"><div class="quote-line"><span>Outside our delivery area</span></div><div class="quote-note">${esc(quote.breakdown)}</div></div>`;
+    } else if (quote.is_free) {
+      box.innerHTML = `<div class="quote-box" style="border-color:rgba(31,122,92,.4);background:var(--forest-soft)"><div class="quote-line"><span><b>${quote.distance_km} km</b> · Delivery in ~${quote.eta_minutes} min</span><strong style="color:var(--ok)">Free</strong></div><div class="quote-note">${esc(quote.breakdown)}</div></div>`;
+    } else {
+      box.innerHTML = `<div class="quote-box"><div class="quote-line"><span><b>${quote.distance_km} km</b> · Delivery in ~${quote.eta_minutes} min</span><strong>${rupee(quote.delivery_charge)}</strong></div><div class="quote-note">${esc(quote.breakdown)}${quote.free_hint ? '<br><b style="color:var(--ok)">'+esc(quote.free_hint)+'</b>' : ''}</div></div>`;
+    }
+    renderSummary();
+  } catch (e) { box.innerHTML = `<div class="quote-box err"><div class="quote-note">${esc(e.message)}</div></div>`; }
+}
+
+async function applyCoupon() {
+  const code = fCoupon.value.trim().toUpperCase();
+  const eEl = document.getElementById('eCoupon');
+  if (!code) { appliedCoupon = ''; appliedCouponData = null; eEl.textContent = ''; renderSummary(); return; }
+  // Look up the coupon among active coupons for live discount preview
+  try {
+    const { coupons } = await api('/coupons/active');
+    const found = (coupons || []).find(c => c.code.toUpperCase() === code);
+    if (!found) { appliedCoupon = ''; appliedCouponData = null; eEl.style.color = 'var(--red)'; eEl.textContent = 'Invalid or expired coupon'; renderSummary(); return; }
+    const subtotal = Cart.subtotal();
+    if (subtotal < Number(found.min_order)) {
+      appliedCoupon = ''; appliedCouponData = null; eEl.style.color = 'var(--red)';
+      eEl.textContent = `Minimum order ${rupee(found.min_order)} required for ${code}`;
+      renderSummary(); return;
+    }
+    appliedCoupon = code; appliedCouponData = found;
+    eEl.style.color = 'var(--ok)'; eEl.textContent = `${code} applied ✓`;
+  } catch { appliedCoupon = code; appliedCouponData = null; }
+  if (coords && orderType === 'delivery') await quoteDelivery(); else renderSummary();
+}
+
+function computeDiscount(subtotal) {
+  // Mirror server coupon logic for display only (server re-validates authoritatively).
+  if (!appliedCouponData) return 0;
+  const c = appliedCouponData;
+  if (subtotal < Number(c.min_order)) return 0;
+  let d = c.type === 'percent' ? (subtotal * Number(c.value)) / 100 : Number(c.value);
+  if (Number(c.max_discount) > 0) d = Math.min(d, Number(c.max_discount));
+  return Math.min(d, subtotal);
+}
+
+function renderSummary() {
+  const items = Cart.read();
+  if (!items.length) {
+    document.getElementById('layout').innerHTML =
+      `<div class="empty" style="grid-column:1/-1"><div class="ei">🛒</div><p>Your cart is empty</p><a href="/menu.html" class="btn btn-primary btn-sm" style="margin-top:14px">Browse Menu</a></div>`;
+    return;
+  }
+  document.getElementById('sumItems').innerHTML = items.map(i => `
+    <div class="co-item">
+      <div class="co-item-info">
+        <div class="co-item-name">${esc(i.name)}</div>
+        <div class="co-item-price">${rupee(i.price)} each</div>
+      </div>
+      <div class="co-qty">
+        <button onclick="changeQty('${i.id}', ${i.qty - 1})" aria-label="Decrease quantity">−</button>
+        <span>${i.qty}</span>
+        <button onclick="changeQty('${i.id}', ${i.qty + 1})" aria-label="Increase quantity">+</button>
+      </div>
+      <div class="co-item-total">${rupee(i.price * i.qty)}</div>
+    </div>`).join('') +
+    `<a href="/menu.html" class="co-addmore">+ Add more items</a>`;
+
+  const subtotal = Cart.subtotal();
+  const discount = computeDiscount(subtotal);
+  const afterDiscount = subtotal - discount;
+
+  // Recompute delivery against discounted subtotal for the free-delivery threshold
+  const delivery = orderType === 'pickup' ? 0 : (currentQuote?.deliverable ? currentQuote.delivery_charge : null);
+
+  const fh = document.getElementById('freeHint');
+  if (config && orderType === 'delivery' && config.delivery.free_above > 0) {
+    if (currentQuote?.is_free) fh.innerHTML = `<div class="free-banner">🎉 You've unlocked FREE delivery!</div>`;
+    else if (afterDiscount < config.delivery.free_above) {
+      const need = Math.ceil(config.delivery.free_above - afterDiscount);
+      fh.innerHTML = `<div class="free-banner" style="background:linear-gradient(135deg,var(--primary),var(--chocolate))">Add ${rupee(need)} more for free delivery (within ${config.delivery.free_within_km} km)</div>`;
+    } else fh.innerHTML = '';
+  } else fh.innerHTML = '';
+
+  const total = afterDiscount + (delivery || 0);
+  document.getElementById('sumTotals').innerHTML = `
+    <div class="sum-row"><span>Subtotal</span><span>${rupee(subtotal)}</span></div>
+    ${discount > 0 ? `<div class="sum-row" style="color:var(--ok)"><span>Discount ${appliedCoupon ? '(' + esc(appliedCoupon) + ')' : ''}</span><span>− ${rupee(discount)}</span></div>` : ''}
+    <div class="sum-row"><span>Delivery${orderType === 'delivery' && currentQuote ? ' (' + currentQuote.distance_km + ' km)' : ''}</span><span>${orderType === 'pickup' ? 'Free (pickup)' : delivery === null ? '<i style="color:var(--ink-faint)">Pin location</i>' : (delivery === 0 ? '<b style="color:var(--ok)">Free</b>' : rupee(delivery))}</span></div>
+    <div class="sum-row total"><span>To Pay</span><b>${rupee(total)}</b></div>`;
+}
+
+function changeQty(id, qty) {
+  Cart.setQty(id, qty);
+  // Re-quote delivery since subtotal changed (affects free-delivery threshold)
+  if (coords && orderType === 'delivery') quoteDelivery(); else renderSummary();
+}
+
+async function placeOrder() {
+  const btn = document.getElementById('placeBtn');
+  const okName = mark(fName, eName, Validate.name(fName.value), 'Use letters only (min 2)');
+  const okPhone = mark(fPhone, ePhone, Validate.phone(fPhone.value), 'Enter a valid 10-digit mobile');
+  // Email is optional. Only validate the format when the customer actually typed something.
+  const hasEmail = !!fEmail.value.trim();
+  const okEmail = mark(fEmail, eEmail, !hasEmail || Validate.gmail(fEmail.value), 'Must be a valid @gmail.com address');
+  if (!okName) return toast('Please enter a valid name (letters only)', 'err');
+  if (!okPhone) return toast('Phone must be exactly 10 digits', 'err');
+  if (!okEmail) return toast('That email does not look right — or leave it blank', 'err');
+  if (orderType === 'delivery') {
+    if (!fAddress.value.trim()) return toast('Please enter your delivery address', 'err');
+    if (!coords) return toast('Please pin your location to calculate delivery', 'err');
+    if (!currentQuote?.deliverable) return toast('We cannot deliver to that location', 'err');
+  }
+  btn.disabled = true; btn.textContent = 'Creating your order...';
+  try {
+    const { order } = await api('/orders', { method: 'POST', body: {
+      customer_name: fName.value.trim(), customer_phone: fPhone.value.trim(), customer_email: fEmail.value.trim().toLowerCase(),
+      items: Cart.read().map(i => ({ id: i.id, qty: i.qty })), order_type: orderType,
+      address_line: fAddress.value.trim(), city: fCity.value.trim(), pincode: fPin.value.trim(),
+      lat: coords?.lat, lng: coords?.lng, delivery_date: fDate.value || null, delivery_slot: fSlot.value,
+      notes: fNotes.value.trim(), coupon_code: (appliedCoupon || fCoupon.value.trim().toUpperCase()),
+      payment_method: 'online',
+    } });
+    // Open mock payment — success page shows only after payment completes.
+    openPayment(order);
+  } catch (e) { toast(e.message, 'err'); btn.disabled = false; btn.textContent = 'Place Order'; }
+}
+
+function openPayment(order) {
+  const cfg  = window.SITE || {};
+  const set  = cfg.settings || {};
+  const link = cfg.razorpay_link || 'https://razorpay.me/@pbbakehouse';
+
+  /* The payment image is optional and admin-controlled:
+     Site Images -> "Payment image", plus the show/hide toggle. */
+  const showImg = set.razorpay_show_image === '1' && !!set.razorpay_qr_image;
+  const note    = set.razorpay_note || '';
+
+  const modal = document.createElement('div');
+  modal.className = 'pay-modal-bg';
+  modal.innerHTML = `
+    <div class="pay-modal" role="dialog" aria-modal="true" aria-label="Payment">
+      <button class="pay-x" id="payClose" aria-label="Close">&times;</button>
+
+      <div class="pay-modal-head">
+        <span class="pay-lock">&#128274;</span>
+        <div>
+          <b>Secure payment</b>
+          <span>Order #${esc(order.order_no)}</span>
+        </div>
+      </div>
+
+      <div class="pay-modal-body">
+        <div class="pay-amt-wrap">
+          <span>Amount payable</span>
+          <div class="pay-amt">${rupee(order.total)}</div>
+        </div>
+
+        ${showImg ? `<div class="pay-img">
+          <img src="${esc(set.razorpay_qr_image)}" alt="Payment" loading="lazy">
+        </div>` : ''}
+
+        <button class="btn btn-primary pay-cta" id="payDoBtn">
+          <span class="pay-cta-main">Pay ${rupee(order.total)}</span>
+          <span class="pay-cta-sub">Card &middot; UPI &middot; Netbanking</span>
+        </button>
+
+        ${note ? `<div class="pay-note">${esc(note)}</div>` : ''}
+
+        <div class="pay-trust">
+          <span>&#128274; 256-bit encrypted</span>
+          <span>&#9679;</span>
+          <span>Powered by Razorpay</span>
+        </div>
+        <div class="pay-fine">Test mode &mdash; no real money is charged.</div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+
+  const shut = () => { modal.remove(); document.body.style.overflow = ''; };
+  document.getElementById('payClose').onclick = shut;
+  modal.addEventListener('click', e => { if (e.target === modal) shut(); });
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { shut(); document.removeEventListener('keydown', esc); }
+  });
+
+  document.getElementById('payDoBtn').onclick = async () => {
+    const b = document.getElementById('payDoBtn');
+    b.disabled = true; b.innerHTML = '<span class="pay-cta-main">Processing\u2026</span>';
+    try {
+      // Mock payment confirmation (server marks order paid)
+      await api(`/orders/${order.order_no}/confirm-payment`, { method: 'POST', body: { phone: order.customer_phone } });
+      await new Promise(r => setTimeout(r, 900)); // simulate gateway
+      Cart.clear();
+      location.href = `/success.html?order=${order.order_no}&paid=1`;
+    } catch (e) {
+      toast(e.message, 'err'); b.disabled = false; b.innerHTML = `<span class="pay-cta-main">Pay ${rupee(order.total)}</span><span class="pay-cta-sub">Card \u00b7 UPI \u00b7 Netbanking</span>`;
+    }
+  };
+}
+</script>
+</body>
+</html>

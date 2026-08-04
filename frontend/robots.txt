@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout.html
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /success.html
+Disallow: /api/
+
+Sitemap: https://pbbakehouse.com/sitemap.xml

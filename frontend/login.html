@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — PB Bake House</title>
+<meta name="theme-color" content="#8B4513">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+
+<section class="section container" style="max-width:940px">
+  <div class="auth-shell">
+    <div class="auth-art">
+      <div class="auth-art-mark">PB Bake House</div>
+      <h3>Your usual,<br><em>two taps away.</em></h3>
+      <p>Sign in and your name, phone and address fill themselves in at checkout.</p>
+      <ul>
+        <li>Reorder past favourites</li>
+        <li>Track every order live</li>
+        <li>Member-only offers first</li>
+      </ul>
+    </div>
+
+    <div class="auth-form">
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in to your PB Bake House account.</p>
+      <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@gmail.com" autocomplete="email"></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" placeholder="Your password" autocomplete="current-password"></div>
+      <button class="btn btn-primary btn-block" id="btn" onclick="login()">Sign in</button>
+
+      <div class="auth-divider">or</div>
+      <div class="social-row">
+        <a class="social-btn" href="/menu.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Order as guest
+        </a>
+        <a class="social-btn" id="waLogin" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C9.7 8.6 9.2 7.2 9 6.6c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 5 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2z"/></svg>
+          Order on WhatsApp
+        </a>
+      </div>
+
+      <p class="auth-alt">New here? <a href="/register.html">Create an account</a></p>
+    </div>
+  </div>
+</section>
+
+<script src="/js/main.js"></script>
+<script>
+mountShell();
+const elEmail = document.getElementById('email');
+const elPass = document.getElementById('password');
+elPass.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+elEmail.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+document.addEventListener('siteconfig', e => {
+  const w = document.getElementById('waLogin');
+  if (w && e.detail.whatsapp) w.href = `https://wa.me/${e.detail.whatsapp}?text=${encodeURIComponent('Hi PB Bake House! I would like to order.')}`;
+});
+
+async function login() {
+  const btn = document.getElementById('btn');
+  if (!elEmail.value.trim() || !elPass.value) return toast('Enter your email and password', 'err');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const { token, user } = await api('/auth/login', { method: 'POST', body: { email: elEmail.value.trim(), password: elPass.value } });
+    Auth.save(token, user);
+    toast('Welcome back, ' + user.name, 'ok');
+    setTimeout(() => location.href = ['staff', 'manager', 'owner'].includes(user.role) ? '/admin' : '/', 600);
+  } catch (e) { toast(e.message, 'err'); btn.disabled = false; btn.textContent = 'Sign in'; }
+}
+</script>
+</body>
+</html>

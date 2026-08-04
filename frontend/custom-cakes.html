@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8B4513">
+<title>Custom cakes — PB Bake House</title>
+<meta name="description" content="Order a custom eggless cake for birthdays, anniversaries and celebrations. Tell us the flavour, message and date — PB Bake House bakes it fresh in Girinagar, Bengaluru.">
+<link rel="canonical" href="https://pbbakehouse.com/custom-cakes.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PB Bake House">
+<meta property="og:title" content="Custom cakes — PB Bake House">
+<meta property="og:description" content="Order a custom eggless cake for birthdays, anniversaries and celebrations. Tell us the flavour, message and date.">
+<meta property="og:url" content="https://pbbakehouse.com/custom-cakes.html">
+<meta property="og:image" content="https://pbbakehouse.com/images/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Custom cakes — PB Bake House">
+<meta name="twitter:description" content="Order a custom eggless cake for birthdays, anniversaries and celebrations.">
+<meta name="twitter:image" content="https://pbbakehouse.com/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+
+<section class="section container" style="max-width:1000px">
+
+  <div class="cc-hero" id="ccHero">
+    <div class="cc-hero-txt">
+      <span class="eyebrow" style="color:var(--gold-soft)">Made only for you</span>
+      <h1>Tell us the cake<br>you have in mind.</h1>
+      <p>Send us a picture, a flavour and a date. We'll come back with a price
+      and a plan — usually the same day.</p>
+    </div>
+  </div>
+
+  <div class="avail-note">
+    <span class="avail-dot"></span>
+    <div>
+      <b>Check availability before booking</b>
+      <span>Custom cakes are made to order and dates fill up. Send your brief and
+      we'll confirm whether we can take it before anything is finalised.</span>
+    </div>
+  </div>
+
+  <section id="ccGallerySection" hidden>
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Start here</span>
+        <h2>Browse our <span>designs</span></h2>
+        <p>Pick one as a starting point, then make it yours.</p>
+      </div>
+    </div>
+    <div class="cc-gallery" id="ccGallery"></div>
+    <div class="cc-skip">
+      <span>Nothing quite right?</span>
+      <button class="btn btn-outline btn-sm" onclick="skipToForm()">Describe your own</button>
+    </div>
+  </section>
+
+  <div class="cc-steps-row">
+    <div class="cc-stepbox"><b>1</b><span>Pick a design</span></div>
+    <div class="cc-stepbox"><b>2</b><span>We check the date</span></div>
+    <div class="cc-stepbox"><b>3</b><span>We quote and bake</span></div>
+  </div>
+
+  <div class="panel" id="ccFormPanel">
+    <div class="cc-chosen" id="ccChosen" hidden>
+      <img id="ccChosenImg" alt="">
+      <div>
+        <span>Starting from this design</span>
+        <b id="ccChosenTitle"></b>
+      </div>
+      <button class="cc-chosen-x" onclick="clearChosen()" aria-label="Remove chosen design">&times;</button>
+    </div>
+
+    <h3>Your cake</h3>
+    <p style="color:var(--ink-soft);margin:8px 0 24px">
+      Only your name and phone number are required. Everything else helps us quote accurately.
+    </p>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="ccName">Your name *</label>
+        <input id="ccName" placeholder="Full name" autocomplete="name">
+        <div class="err-msg" id="eccName"></div>
+      </div>
+      <div class="field">
+        <label for="ccPhone">Phone number *</label>
+        <input id="ccPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile" autocomplete="tel">
+        <div class="err-msg" id="eccPhone"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="ccEmail">Email <span style="font-weight:500;color:var(--ink-faint)">(optional)</span></label>
+      <input id="ccEmail" type="email" placeholder="you@gmail.com" autocomplete="email">
+      <div class="err-msg" id="eccEmail"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="ccOccasion">Occasion</label>
+        <select id="ccOccasion">
+          <option value="">Choose an occasion</option>
+          <option>Birthday</option><option>Anniversary</option><option>Wedding</option>
+          <option>Baby shower</option><option>Engagement</option><option>Farewell</option>
+          <option>Corporate</option><option>Just because</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ccFlavour">Flavour</label>
+        <select id="ccFlavour">
+          <option value="">Choose a flavour</option>
+          <option>Belgian chocolate</option><option>Chocolate truffle</option>
+          <option>Red velvet</option><option>Butterscotch</option>
+          <option>Vanilla</option><option>Pineapple</option>
+          <option>Blueberry</option><option>Fresh fruit</option>
+          <option>Coffee</option><option>Not sure yet</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="ccWeight">Weight</label>
+        <select id="ccWeight">
+          <option value="">Choose a size</option>
+          <option>500 g</option><option>1 kg</option><option>1.5 kg</option>
+          <option>2 kg</option><option>3 kg</option><option>5 kg or more</option>
+          <option>Tiered cake</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label-lg" for="ccDate">When do you need it?</label>
+        <div class="date-wrap">
+          <input id="ccDate" type="date" class="date-input">
+          <span class="date-ph" aria-hidden="true">DD-MM-YYYY</span>
+        </div>
+        <div class="err-msg" id="eccDate"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="ccMessage">Message on the cake</label>
+      <input id="ccMessage" maxlength="200" placeholder="e.g. Happy 30th, Asha!">
+    </div>
+
+    <div class="field">
+      <label for="ccNotes">Special instructions</label>
+      <textarea id="ccNotes" rows="4" placeholder="Colours, theme, allergies, less sugar, delivery notes — anything that helps."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="ccImage">Reference photo <span style="font-weight:500;color:var(--ink-faint)">(optional)</span></label>
+      <div class="cc-drop" id="ccDrop">
+        <input id="ccImage" type="file" accept="image/*" hidden>
+        <div id="ccDropInner">
+          <div class="cc-drop-ic">&#128247;</div>
+          <b>Add a picture of the cake you like</b>
+          <span>JPG, PNG or WEBP — up to 8 MB</span>
+        </div>
+      </div>
+      <div class="err-msg" id="eccImage"></div>
+    </div>
+
+    <button class="btn btn-primary btn-lg btn-block" id="ccSubmit" onclick="submitEnquiry()">
+      Send enquiry
+    </button>
+    <p style="font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:14px">
+      No payment now. We'll call you to confirm the details and the price.
+    </p>
+  </div>
+
+  <div class="panel" id="ccDone" hidden style="text-align:center">
+    <div class="cc-tick">&#10003;</div>
+    <h3 style="font-size:28px;margin-bottom:10px">Enquiry received</h3>
+    <p style="color:var(--ink-soft)">We've got your brief. <b>This is an enquiry, not a
+    confirmed order</b> — we'll check the date and come back to you with availability and a price.</p>
+    <div class="cc-ref">
+      <span>Your reference</span>
+      <b id="ccRefNo">—</b>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px">
+      <a href="/menu.html" class="btn btn-outline">Browse the menu</a>
+      <a href="#" id="ccWa" class="btn btn-primary" target="_blank" rel="noopener">Message us on WhatsApp</a>
+    </div>
+  </div>
+
+</section>
+
+<script src="/js/main.js"></script>
+<script>
+mountShell('custom');
+liveFilter(document.getElementById('ccName'), 'name');
+liveFilter(document.getElementById('ccPhone'), 'phone');
+
+/* Cannot order a custom cake for a date in the past. */
+(function () {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  document.getElementById('ccDate').min = d.toISOString().slice(0, 10);
+})();
+
+/* Optional banner image, set by the admin under Site Images. */
+function paintHero(cfg) {
+  const img = cfg && cfg.settings && cfg.settings.custom_cake_image;
+  if (img) document.getElementById('ccHero').style.backgroundImage =
+    `linear-gradient(100deg,rgba(45,27,18,.86),rgba(45,27,18,.45)),url("${img}")`;
+  const wa = document.getElementById('ccWa');
+  if (wa && cfg && cfg.whatsapp) wa.href = 'https://wa.me/' + cfg.whatsapp;
+}
+if (window.SITE) paintHero(window.SITE);
+document.addEventListener('siteconfig', e => paintHero(e.detail));
+
+/* ---------- DESIGN GALLERY ----------
+   Designs are uploaded by the admin. With none uploaded the section stays
+   hidden and the form works exactly as a blank brief. */
+let chosenDesign = null;
+
+api('/custom-cake-designs').then(({ designs }) => {
+  if (!designs || !designs.length) return;
+  document.getElementById('ccGallery').innerHTML = designs.map(d => `
+    <button class="cc-design" onclick="chooseDesign('${d.id}')" data-id="${d.id}">
+      <div class="cc-design-img">
+        ${d.image ? `<img src="${esc(d.image)}" alt="${esc(d.title)}" loading="lazy">`
+                  : '<span class="cc-design-ph">&#127874;</span>'}
+        <span class="cc-design-pick">Customise this</span>
+      </div>
+      <div class="cc-design-body">
+        <b>${esc(d.title)}</b>
+        ${d.description ? `<p>${esc(d.description)}</p>` : ''}
+        <div class="cc-design-meta">
+          ${d.occasion ? `<span>${esc(d.occasion)}</span>` : ''}
+          ${d.base_price ? `<span class="cc-design-price">from ${rupee(d.base_price)}</span>` : ''}
+        </div>
+      </div>
+    </button>`).join('');
+  document.getElementById('ccGallerySection').hidden = false;
+  window.__designs = designs;
+  if (window.UI) UI.refresh();
+}).catch(() => {});
+
+function chooseDesign(id) {
+  const d = (window.__designs || []).find(x => x.id === id);
+  if (!d) return;
+  chosenDesign = d;
+
+  document.querySelectorAll('.cc-design').forEach(el =>
+    el.classList.toggle('on', el.dataset.id === id));
+
+  const box = document.getElementById('ccChosen');
+  document.getElementById('ccChosenTitle').textContent = d.title;
+  const img = document.getElementById('ccChosenImg');
+  if (d.image) { img.src = d.image; img.hidden = false; } else { img.hidden = true; }
+  box.hidden = false;
+
+  /* Narrow the dropdowns to what this design actually supports. */
+  applyOptions('ccFlavour', d.flavours, 'Choose a flavour');
+  applyOptions('ccWeight', d.weights, 'Choose a size');
+  if (d.occasion) {
+    const sel = document.getElementById('ccOccasion');
+    if ([...sel.options].some(o => o.value === d.occasion)) sel.value = d.occasion;
+  }
+  skipToForm();
+}
+
+/* Replaces a dropdown's options when the design specifies its own list. */
+function applyOptions(selectId, csv, placeholder) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const list = String(csv || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (!list.length) return;
+  sel.innerHTML = `<option value="">${placeholder}</option>`
+    + list.map(o => `<option>${esc(o)}</option>`).join('');
+}
+
+function clearChosen() {
+  chosenDesign = null;
+  document.getElementById('ccChosen').hidden = true;
+  document.querySelectorAll('.cc-design').forEach(el => el.classList.remove('on'));
+  toast('Starting from a blank brief', 'ok');
+}
+
+function skipToForm() {
+  document.getElementById('ccFormPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---------- file picker ---------- */
+const drop = document.getElementById('ccDrop');
+const fileInput = document.getElementById('ccImage');
+drop.addEventListener('click', () => fileInput.click());
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('over');
+  if (e.dataTransfer.files[0]) { fileInput.files = e.dataTransfer.files; showPick(); }
+});
+fileInput.addEventListener('change', showPick);
+
+function showPick() {
+  const f = fileInput.files[0];
+  const err = document.getElementById('eccImage');
+  err.textContent = '';
+  if (!f) return;
+  if (f.size > 8 * 1024 * 1024) {
+    err.textContent = 'That image is over 8 MB — please pick a smaller one';
+    fileInput.value = '';
+    return;
+  }
+  const url = URL.createObjectURL(f);
+  document.getElementById('ccDropInner').innerHTML =
+    `<img src="${url}" alt="Your reference" class="cc-prev">
+     <b>${esc(f.name)}</b><span>Tap to choose a different picture</span>`;
+}
+
+/* ---------- submit ---------- */
+async function submitEnquiry() {
+  const btn = document.getElementById('ccSubmit');
+  const name = document.getElementById('ccName');
+  const phone = document.getElementById('ccPhone');
+  const email = document.getElementById('ccEmail');
+
+  const bad = (el, msgEl, msg) => { document.getElementById(msgEl).textContent = msg; el.focus(); toast(msg, 'err'); };
+
+  document.getElementById('eccName').textContent = '';
+  document.getElementById('eccPhone').textContent = '';
+  document.getElementById('eccEmail').textContent = '';
+
+  if (!Validate.name(name.value)) return bad(name, 'eccName', 'Please enter your name');
+  if (!Validate.phone(phone.value)) return bad(phone, 'eccPhone', 'Enter a valid 10-digit mobile number');
+  if (email.value.trim() && !Validate.gmail(email.value))
+    return bad(email, 'eccEmail', 'That email does not look right — or leave it blank');
+
+  const fd = new FormData();
+  fd.append('customer_name', name.value.trim());
+  fd.append('phone', phone.value.trim());
+  fd.append('email', email.value.trim());
+  fd.append('occasion', document.getElementById('ccOccasion').value);
+  fd.append('flavour', document.getElementById('ccFlavour').value);
+  fd.append('weight', document.getElementById('ccWeight').value);
+  fd.append('needed_on', document.getElementById('ccDate').value);
+  fd.append('message_on_cake', document.getElementById('ccMessage').value.trim());
+  fd.append('instructions', document.getElementById('ccNotes').value.trim());
+  if (fileInput.files[0]) fd.append('reference_image', fileInput.files[0]);
+  if (chosenDesign) {
+    fd.append('design_id', chosenDesign.id);
+    fd.append('design_title', chosenDesign.title);
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    const r = await api('/custom-cakes', { method: 'POST', body: fd });
+    document.getElementById('ccRefNo').textContent = r.ref_no;
+    document.getElementById('ccFormPanel').hidden = true;
+    document.getElementById('ccDone').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast('Enquiry sent', 'ok');
+  } catch (e) {
+    toast(e.message, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Send enquiry';
+  }
+}
+</script>
+</body>
+</html>

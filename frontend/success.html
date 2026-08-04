@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8B4513">
+<title>Order confirmed — PB Bake House</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+<section class="section container" style="max-width:640px">
+  <div class="panel center" style="padding:44px 28px">
+    <div class="check ei" style="width:110px;height:110px;margin:0 auto;font-size:50px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,var(--cream),var(--primary-soft));border:1px solid var(--glass-line)">✓</div>
+    <h2 style="font-family:var(--font-display);font-size:clamp(28px,4vw,38px);font-weight:800;margin:22px 0 8px">Order placed</h2>
+    <p style="color:var(--ink-soft)" id="subMsg">Payment received — our bakers have been notified and will start fresh.</p>
+    <div id="paidBadge" style="display:inline-flex;align-items:center;gap:8px;background:var(--forest-soft);color:var(--forest);font-weight:600;font-size:12.5px;padding:8px 18px;border-radius:100px;margin-top:16px">🔒 Payment Successful</div>
+    <div style="background:var(--cream);border:1px solid var(--glass-line);border-radius:var(--r);padding:24px;margin:28px 0">
+      <div style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint)">Your order number</div>
+      <div id="orderNo" style="font-family:var(--font-display);font-size:34px;font-weight:800;color:var(--primary);margin-top:6px;letter-spacing:.02em">-</div>
+    </div>
+    <p style="font-size:14px;color:var(--ink-soft)">Keep this number handy — it is how you track the order. A confirmation email is on its way.</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap">
+      <a id="trackLink" href="/track.html" class="btn btn-primary">Track this order</a>
+      <a href="/menu.html" class="btn btn-outline">Keep shopping</a>
+    </div>
+  </div>
+</section>
+<script src="/js/main.js"></script>
+<script>
+mountShell();
+const params = new URLSearchParams(location.search);
+const no = params.get('order');
+const paid = params.get('paid') === '1';
+if (no) { document.getElementById('orderNo').textContent = no; document.getElementById('trackLink').href = '/track.html?order=' + no; }
+if (!paid) {
+  document.getElementById('paidBadge').style.display = 'none';
+  document.getElementById('subMsg').textContent = 'The kitchen has your order.';
+}
+
+/* Celebrate the order — once, and only if motion is welcome. */
+window.addEventListener('load', () => {
+  setTimeout(() => { if (window.UI && UI.confetti) UI.confetti(110); }, 420);
+});
+</script>
+</body>
+</html>

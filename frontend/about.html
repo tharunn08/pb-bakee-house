@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8B4513">
+<title>About us — PB Bake House</title>
+<meta name="description" content="PB Bake House is a 100% eggless, pure vegetarian neighbourhood bakery in Girinagar, Bengaluru. FSSAI certified, baked fresh every single morning. Read our story.">
+<link rel="canonical" href="https://pbbakehouse.com/about.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PB Bake House">
+<meta property="og:title" content="About us — PB Bake House">
+<meta property="og:description" content="PB Bake House is a 100% eggless, pure vegetarian neighbourhood bakery in Girinagar, Bengaluru. FSSAI certified, baked fresh every single morning.">
+<meta property="og:url" content="https://pbbakehouse.com/about.html">
+<meta property="og:image" content="https://pbbakehouse.com/images/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About us — PB Bake House">
+<meta name="twitter:description" content="PB Bake House is a 100% eggless, pure vegetarian neighbourhood bakery in Girinagar, Bengaluru.">
+<meta name="twitter:image" content="https://pbbakehouse.com/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+<section class="section container" style="max-width:1000px">
+  <div class="about-hero">
+    <span class="eyebrow" style="color:var(--gold-soft)">Since day one</span>
+    <h1>A small kitchen in Girinagar,<br>baking for the neighbourhood.</h1>
+    <p>PB Bake House is your neighbourhood bakery in Girinagar, Bengaluru — crafting fresh cakes, breads, pastries and cookies to order, every single day. No overnight shelves, no shortcuts. Just honest baking that reaches you warm and fresh.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-cell"><b data-count="100" data-suffix="%">0</b><span>Eggless</span></div>
+    <div class="stat-cell"><b data-count="100" data-suffix="%">0</b><span>Vegetarian</span></div>
+    <div class="stat-cell"><b id="statEta">—</b><span>Minutes nearby</span></div>
+    <div class="stat-cell"><b id="statRange">—</b><span>Km delivery range</span></div>
+  </div>
+
+  <div class="val-grid">
+    <div class="val"><div class="val-ic">🌿</div><h4>100% Vegetarian</h4><p>Our entire kitchen is pure vegetarian. Every ingredient we source is veg-certified — no exceptions.</p></div>
+    <div class="val"><div class="val-ic">🥚</div><h4>100% Eggless</h4><p>Every single item we bake is completely eggless — no exceptions, no separate batches. Safe for every guest.</p></div>
+    <div class="val"><div class="val-ic">🧑‍🍳</div><h4>Freshly Baked Daily</h4><p>We bake to order. What you receive was made that same day, never pre-stocked.</p></div>
+    <div class="val"><div class="val-ic">⚡</div><h4>Fast Delivery</h4><p>Most nearby orders reach you in under 30 minutes, hot from the oven to your doorstep.</p></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px">
+    <h3>Our story</h3>
+    <p style="color:var(--ink-soft);margin-top:10px">What began as a small home kitchen passion for baking has grown into a beloved local bakery serving the Banashankari and Girinagar community. We believe a good cake isn't just dessert — it's the centre of every celebration, big or small. That belief drives us to use quality ingredients, bake in small fresh batches, and treat every order like it's for our own family.</p>
+    <p style="color:var(--ink-soft);margin-top:12px">From birthday truffle cakes to everyday breads and cookies, everything is prepared with the same care. And because we're a neighbourhood bakery, we deliver fast — freshness is only real if it reaches you quickly.</p>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px">
+    <h3>How pricing and delivery work</h3>
+    <p style="color:var(--ink-soft);margin-top:10px">We believe in full transparency — you always see the exact delivery charge before you pay. Here's exactly how it's calculated based on your distance from our bakery:</p>
+    <div class="rule-strip" id="ruleStrip" style="margin-top:14px"></div>
+
+    <h4 style="margin-top:24px;font-size:16px">Worked examples</h4>
+    <div class="price-example" id="priceExamples"></div>
+
+    <div class="quote-box" style="margin-top:16px;border-color:rgba(31,122,92,.4);background:var(--forest-soft)">
+      <div class="quote-line"><span>🎉 <b>FREE Delivery</b></span></div>
+      <div class="quote-note" id="freeRule">On orders above ₹500 within 2 km of our bakery.</div>
+    </div>
+    <p style="font-size:13px;color:var(--ink-faint);margin-top:12px">Prefer to skip delivery? Choose <b>free store pickup</b> at checkout and collect your order fresh from our counter.</p>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px">
+    <h3>How to order, in three taps</h3>
+    <ol class="step-list">
+      <li><b>Browse &amp; add</b> — pick your treats from the menu and add to cart.</li>
+      <li><b>Pin your location</b> — we instantly calculate your delivery charge and time.</li>
+      <li><b>Place &amp; track</b> — pay by cash/UPI or online, then track your order live.</li>
+    </ol>
+  </div>
+
+  <!-- Roles, not invented names. Add real photos and names here when you have them. -->
+  <div class="panel" style="margin-bottom:20px">
+    <h3>Inside the kitchen</h3>
+    <p style="color:var(--ink-soft);margin-top:10px">Four jobs, one small room, starting before sunrise.</p>
+    <div class="feature-grid" style="margin-top:22px">
+      <div class="feature"><div class="fi">&#129371;</div><h4>Breads</h4><p>Doughs are mixed and proved overnight so the first loaves are out by 7am.</p></div>
+      <div class="feature"><div class="fi">&#127874;</div><h4>Cakes</h4><p>Sponges baked to order, filled and finished by hand the same day.</p></div>
+      <div class="feature"><div class="fi">&#129382;</div><h4>Pastry</h4><p>Laminated in small batches, because butter does not forgive shortcuts.</p></div>
+      <div class="feature"><div class="fi">&#128666;</div><h4>Delivery</h4><p>Boxed, sealed and out the door within minutes of coming off the rack.</p></div>
+    </div>
+  </div>
+
+  <!-- Gallery: real photographs of products currently on the menu. -->
+  <div class="panel" style="margin-bottom:20px" id="galleryPanel" hidden>
+    <h3>From the counter</h3>
+    <p style="color:var(--ink-soft);margin-top:10px;margin-bottom:20px">Everything below is on the menu right now.</p>
+    <div class="cat-grid" id="galleryGrid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))"></div>
+  </div>
+
+  <div class="insta-cta" style="margin-bottom:20px">
+    <div class="insta-cta-txt">
+      <div class="insta-badge">Instagram perk</div>
+      <h3>Follow us and take <span>10% off</span> in store</h3>
+      <p>Follow <b id="instaHandle">@pb_bake_house</b> on Instagram, show us your follow at the counter when you visit, and get 10% off your purchase. Stay updated on new bakes, offers and behind-the-scenes too!</p>
+      <a href="#" id="instaFollowBtn" target="_blank" rel="noopener" class="btn">Follow @pb_bake_house →</a>
+    </div>
+    <div class="insta-cta-icon">📷</div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px">
+    <h3>Visit the bakery</h3>
+    <p style="color:var(--ink-soft);margin-top:8px" id="bakeryAddr">Loading address…</p>
+    <a href="#" id="mapLink" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="margin-top:12px">Open in Google Maps &rarr;</a>
+    <div class="map-wrap" id="mapWrap"></div>
+  </div>
+
+  <div class="panel" id="contact">
+    <h3>Get in touch</h3>
+    <p style="color:var(--ink-soft);margin-bottom:16px">Custom cake requests, bulk orders, or feedback? We'd love to hear from you.</p>
+    <div class="contact-methods" id="contactMethods"></div>
+    <div class="field-row" style="margin-top:16px">
+      <div class="field"><label for="cName">Your name *</label><input id="cName" placeholder="Your name"><div class="err-msg" id="ecName"></div></div>
+      <div class="field"><label for="cEmail">Email</label><input id="cEmail" type="email" placeholder="you@gmail.com"></div>
+    </div>
+    <div class="field"><label for="cPhone">Your phone number *</label><input id="cPhone" type="tel" inputmode="numeric" placeholder="10-digit mobile number"><div class="err-msg" id="ecPhone"></div></div>
+    <div class="field"><label for="cMessage">Message *</label><textarea id="cMessage" placeholder="How can we help?"></textarea></div>
+    <button class="btn btn-primary" id="cBtn" onclick="sendMessage()">Send message</button>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  "name": "PB Bake House",
+  "image": "https://pbbakehouse.com/images/logo.png",
+  "url": "https://pbbakehouse.com/about.html",
+  "telephone": "+918971727805",
+  "priceRange": "₹₹",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "6, 1st phase Girinagar, Avalahalli, Banashankari 1st Stage",
+    "addressLocality": "Bengaluru",
+    "addressRegion": "Karnataka",
+    "postalCode": "560085",
+    "addressCountry": "IN"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": 12.943563, "longitude": 77.540188 },
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "07:00", "closes": "21:30" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Sunday"], "opens": "08:00", "closes": "21:00" }
+  ],
+  "sameAs": ["https://www.instagram.com/pb_bake_house"]
+}
+</script>
+<script src="/js/main.js"></script>
+<script>
+mountShell('about');
+liveFilter(document.getElementById('cName'), 'name');
+liveFilter(document.getElementById('cPhone'), 'phone');
+
+function fillAbout(cfg) {
+  const d = cfg.delivery;
+  document.getElementById('ruleStrip').innerHTML =
+    `<span>Base ${rupee(d.base_fare)} covers first ${d.base_km} km</span><span>+${rupee(d.per_extra_km)} per extra km (rounded up)</span><span>Delivers up to ${d.max_km} km</span><span>⚡ ~${d.eta_minutes} min nearby</span>`;
+
+  // Worked examples computed from real config
+  const ex = (km) => {
+    if (km <= d.base_km) return d.base_fare;
+    return d.base_fare + Math.ceil(km - d.base_km) * d.per_extra_km;
+  };
+  document.getElementById('priceExamples').innerHTML = `<table>
+    <tr><td>1.5 km away</td><td>${rupee(ex(1.5))}</td></tr>
+    <tr><td>2 km away (base limit)</td><td>${rupee(ex(2))}</td></tr>
+    <tr><td>3.5 km away</td><td>${rupee(ex(3.5))}</td></tr>
+    <tr><td>6 km away</td><td>${rupee(ex(6))}</td></tr>
+    <tr><td>Order above ${rupee(d.free_above)} within ${d.free_within_km} km</td><td>Free</td></tr>
+  </table>`;
+  document.getElementById('freeRule').textContent = `On orders above ${rupee(d.free_above)} within ${d.free_within_km} km of our bakery — the ${rupee(d.base_fare)} base fare is waived automatically.`;
+
+  // Headline numbers, taken straight from the live delivery config
+  const se = document.getElementById('statEta'); if (se) se.textContent = d.eta_minutes;
+  const sr = document.getElementById('statRange'); if (sr) sr.textContent = d.max_km;
+
+  // Instagram
+  const ig = document.getElementById('instaFollowBtn'); if (ig) ig.href = cfg.instagram || '#';
+  const h = document.getElementById('instaHandle'); if (h && cfg.instagram_handle) h.textContent = '@' + cfg.instagram_handle;
+
+  // Location
+  document.getElementById('bakeryAddr').textContent = cfg.bakery_address || '';
+  const ml = document.getElementById('mapLink'); if (ml) ml.href = cfg.maps_url || '#';
+  if (cfg.bakery_lat && cfg.bakery_lng) {
+    document.getElementById('mapWrap').innerHTML =
+      `<iframe loading="lazy" src="https://maps.google.com/maps?q=${cfg.bakery_lat},${cfg.bakery_lng}&z=16&output=embed"></iframe>`;
+  }
+
+  // Contact methods
+  // Format the number nicely: 918971727805 -> +91 89717 27805
+  const raw = String(cfg.whatsapp || '');
+  const local = raw.startsWith('91') ? raw.slice(2) : raw;
+  const pretty = local.length === 10 ? `+91 ${local.slice(0,5)} ${local.slice(5)}` : raw;
+  document.getElementById('contactMethods').innerHTML = `
+    <a href="tel:+${esc(raw)}" class="cm cm-call">📞 Call Us<span>${esc(pretty)}</span></a>
+    <a href="https://wa.me/${esc(raw)}" target="_blank" rel="noopener" class="cm cm-wa">💬 WhatsApp<span>${esc(pretty)}</span></a>
+    <a href="${cfg.instagram}" target="_blank" rel="noopener" class="cm cm-ig">📸 Instagram<span>@${esc(cfg.instagram_handle)}</span></a>
+    <a href="${cfg.maps_url}" target="_blank" rel="noopener" class="cm cm-loc">📍 Location<span>Find us on Maps</span></a>`;
+}
+if (window.SITE) fillAbout(window.SITE);
+document.addEventListener('siteconfig', e => fillAbout(e.detail));
+
+/* Gallery uses real product photos — nothing staged, nothing stock. */
+api('/products?limit=8').then(({ products }) => {
+  const withPhoto = (products || []).filter(p => p.image).slice(0, 6);
+  if (!withPhoto.length) return;
+  document.getElementById('galleryGrid').innerHTML = withPhoto.map(p => `
+    <a href="/product.html?id=${p.id}" class="cat-card" style="aspect-ratio:1/1;border-radius:var(--r-lg)">
+      <img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">
+      <div class="cat-meta"><b style="font-size:15px">${esc(p.name)}</b></div>
+      <div class="cat-arrow">&rarr;</div>
+    </a>`).join('');
+  document.getElementById('galleryPanel').hidden = false;
+}).catch(() => {});
+
+async function sendMessage() {
+  const btn = document.getElementById('cBtn');
+  const elN = document.getElementById('cName'), elP = document.getElementById('cPhone');
+  const elE = document.getElementById('cEmail'), elM = document.getElementById('cMessage');
+  if (!Validate.name(elN.value)) { document.getElementById('ecName').textContent = 'Letters only'; return toast('Please enter a valid name', 'err'); }
+  document.getElementById('ecName').textContent = '';
+  if (!Validate.phone(elP.value)) { document.getElementById('ecPhone').textContent = 'Enter a valid 10-digit mobile'; return toast('Please enter your 10-digit phone number', 'err'); }
+  document.getElementById('ecPhone').textContent = '';
+  if (!elM.value.trim()) return toast('Please enter a message', 'err');
+  if (elE.value.trim() && !Validate.gmail(elE.value)) return toast('Email must be a valid @gmail.com', 'err');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const r = await api('/contact', { method: 'POST', body: { name: elN.value.trim(), email: elE.value.trim(), phone: elP.value.trim(), message: elM.value.trim() } });
+    toast(r.message, 'ok'); elN.value = ''; elE.value = ''; elP.value = ''; elM.value = '';
+  } catch (e) { toast(e.message, 'err'); }
+  btn.disabled = false; btn.textContent = 'Send message';
+}
+</script>
+</body>
+</html>

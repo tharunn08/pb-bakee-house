@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8B4513">
+<title>Track your order — PB Bake House</title>
+<meta name="description" content="Track your PB Bake House order in real time — from oven to your door.">
+<link rel="canonical" href="https://pbbakehouse.com/track.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+<section class="section container" style="max-width:760px">
+  <div class="section-head"><div><span class="eyebrow">Order status</span><h2>Track your <span>order</span></h2><p>Enter the number from your confirmation email.</p></div></div>
+  <div class="panel" style="margin-bottom:20px">
+    <div class="field-row">
+      <div class="field"><label for="fOrder">Order number</label><input id="fOrder" placeholder="PB2607211234" style="text-transform:uppercase"></div>
+      <div class="field"><label for="fPhone">Phone (optional)</label><input id="fPhone" placeholder="Registered mobile"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="track()">Track order</button>
+  </div>
+  <div id="result"></div>
+</section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/main.js"></script>
+<script>
+mountShell('track');
+const FLOW = [
+  ['pending', 'Order received', 'We have your order'],
+  ['accepted', 'Accepted', 'Confirmed by the bakery'],
+  ['preparing', 'Preparing', 'Weighing and mixing'],
+  ['ready', 'Baked & packed', 'Out of the oven, boxed up'],
+  ['out_for_delivery', 'Out for delivery', 'On the way to you'],
+  ['delivered', 'Delivered', 'Enjoy it while it is warm'],
+];
+const pre = new URLSearchParams(location.search).get('order');
+if (pre) { fOrder.value = pre; track(); }
+let socket;
+
+async function track() {
+  const no = fOrder.value.trim().toUpperCase();
+  if (!no) return toast('Enter your order number', 'err');
+  const box = document.getElementById('result');
+  box.innerHTML = '<div class="panel center"><div class="skeleton" style="height:190px"></div></div>';
+  try {
+    const q = fPhone.value.trim() ? '?phone=' + encodeURIComponent(fPhone.value.trim()) : '';
+    const { order } = await api(`/orders/track/${no}${q}`);
+    render(order);
+    socket ||= io();
+    socket.emit('track_order', no);
+    socket.off('status').on('status', ({ status }) => {
+      order.status = status; render(order);
+      toast('Order updated: ' + status.replace(/_/g, ' '), 'ok');
+    });
+  } catch (e) { box.innerHTML = `<div class="panel center" style="color:var(--red)">${esc(e.message)}</div>`; }
+}
+
+function render(o) {
+  const cancelled = o.status === 'cancelled';
+  const idx = FLOW.findIndex(s => s[0] === o.status);
+  const steps = cancelled ? '' : FLOW.map((s, i) => `
+    <div class="step ${i < idx ? 'done' : i === idx ? 'now' : ''}">
+      <div class="step-dot"><div class="dot"></div>${i < FLOW.length - 1 ? '<div class="bar"></div>' : ''}</div>
+      <div class="step-txt"><h4>${s[1]}</h4><p>${s[2]}</p></div>
+    </div>`).join('');
+  document.getElementById('result').innerHTML = `
+    <div class="panel" style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:12px;letter-spacing:1px;color:var(--ink-faint)">ORDER</div>
+          <div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--primary)">#${esc(o.order_no)}</div>
+          <div style="font-size:13px;color:var(--ink-faint)">${new Date(o.created_at).toLocaleString('en-IN')}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;letter-spacing:1px;color:var(--ink-faint)">TOTAL</div>
+          <div style="font-family:var(--font-display);font-size:26px;font-weight:800">${rupee(o.total)}</div>
+          <div style="font-size:13px;color:var(--ink-faint)">${o.order_type === 'pickup' ? 'Store Pickup' : o.distance_km + ' km delivery'}</div>
+        </div>
+      </div>
+      ${cancelled ? '<div class="quote-box err" style="margin-top:18px"><b>This order was cancelled.</b><div class="quote-note">Please contact us if this was unexpected.</div></div>' : `<div class="steps">${steps}</div>`}
+    </div>
+    <div class="panel">
+      <h3>Your items</h3>
+      ${(o.items || []).map(i => `
+        <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px">
+          <span>${esc(i.name)} <b style="color:var(--ink-faint)">x ${i.qty}</b></span>
+          <span style="font-weight:700">${rupee(i.price * i.qty)}</span>
+        </div>`).join('')}
+      <div class="sum-row" style="margin-top:10px"><span>Subtotal</span><span>${rupee(o.subtotal)}</span></div>
+      ${Number(o.discount) > 0 ? `<div class="sum-row"><span>Discount</span><span>- ${rupee(o.discount)}</span></div>` : ''}
+      <div class="sum-row"><span>Delivery</span><span>${rupee(o.delivery_charge)}</span></div>
+      <div class="sum-row total"><span>Total</span><b>${rupee(o.total)}</b></div>
+    </div>`;
+}
+</script>
+</body>
+</html>

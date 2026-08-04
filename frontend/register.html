@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account — PB Bake House</title>
+<meta name="theme-color" content="#8B4513">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+
+<section class="section container" style="max-width:940px">
+  <div class="auth-shell">
+    <div class="auth-art">
+      <div class="auth-art-mark">PB Bake House</div>
+      <h3>Set it up once,<br><em>order in three taps.</em></h3>
+      <p>An account saves your details so checkout takes seconds, and keeps every order in one place.</p>
+      <ul>
+        <li>Faster checkout, every time</li>
+        <li>Your full order history</li>
+        <li>Live tracking from oven to door</li>
+      </ul>
+    </div>
+
+    <div class="auth-form">
+      <h2>Create account</h2>
+      <p class="sub">Takes about thirty seconds.</p>
+      <div class="field"><label for="name">Full name</label><input id="name" placeholder="Your name" autocomplete="name"></div>
+      <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@gmail.com" autocomplete="email"></div>
+      <div class="field"><label for="phone">Phone</label><input id="phone" type="tel" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" placeholder="At least 6 characters" autocomplete="new-password"></div>
+      <button class="btn btn-primary btn-block" id="btn" onclick="register()">Create account</button>
+      <p class="auth-alt">Already have an account? <a href="/login.html">Sign in</a></p>
+    </div>
+  </div>
+</section>
+
+<script src="/js/main.js"></script>
+<script>
+mountShell();
+// NOTE: use explicit getElementById — a bare `name` resolves to window.name
+// (a built-in string), which made validation always fail.
+const elName = document.getElementById('name');
+const elEmail = document.getElementById('email');
+const elPhone = document.getElementById('phone');
+const elPass = document.getElementById('password');
+liveFilter(elName, 'name');
+liveFilter(elPhone, 'phone');
+elPass.addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+
+async function register() {
+  const btn = document.getElementById('btn');
+  if (!Validate.name(elName.value)) return toast('Enter your name using letters only', 'err');
+  if (!Validate.gmail(elEmail.value)) return toast('Email must be a valid @gmail.com address', 'err');
+  if (!Validate.phone(elPhone.value)) return toast('Phone must be a valid 10-digit mobile number', 'err');
+  if (elPass.value.length < 6) return toast('Password must be at least 6 characters', 'err');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const { token, user } = await api('/auth/register', { method: 'POST', body: {
+      name: elName.value.trim(), email: elEmail.value.trim().toLowerCase(),
+      phone: elPhone.value.trim(), password: elPass.value } });
+    Auth.save(token, user);
+    toast('Account created. Welcome!', 'ok');
+    setTimeout(() => location.href = '/', 600);
+  } catch (e) { toast(e.message, 'err'); btn.disabled = false; btn.textContent = 'Create account'; }
+}
+</script>
+</body>
+</html>

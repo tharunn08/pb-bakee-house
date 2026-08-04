@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PB Bake House — Eggless cakes, breads and pastries, baked this morning</title>
+<meta name="description" content="A Girinagar bakery. Everything eggless, everything baked the morning it reaches you. Delivery from Rs.40, live order tracking.">
+<meta name="theme-color" content="#8B4513">
+<link rel="canonical" href="https://pbbakehouse.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PB Bake House">
+<meta property="og:title" content="PB Bake House — Eggless cakes, breads and pastries, baked this morning">
+<meta property="og:description" content="A Girinagar bakery. Everything eggless, everything baked the morning it reaches you. Delivery from Rs.40, live order tracking.">
+<meta property="og:url" content="https://pbbakehouse.com/">
+<meta property="og:image" content="https://pbbakehouse.com/images/logo.png">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PB Bake House — Eggless cakes, breads and pastries, baked this morning">
+<meta name="twitter:description" content="A Girinagar bakery. Everything eggless, everything baked the morning it reaches you. Delivery from Rs.40, live order tracking.">
+<meta name="twitter:image" content="https://pbbakehouse.com/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/ui.js"></script>
+</head>
+<body>
+
+<div class="pb-loader" id="pbLoader">
+  <div class="pbl-inner">
+    <div class="pbl-ring"><span class="pbl-mark">PB</span></div>
+    <div class="pbl-word">Bake House</div>
+    <div class="pbl-bar"><i></i></div>
+  </div>
+</div>
+
+<div class="trust-bar" id="trustBar">
+  <div class="container trust-bar-inner">
+    <span>&#10003; <b id="tbFssai">FSSAI certified</b></span>
+    <span>&#127807; 100% vegetarian</span>
+    <span>&#129370; 100% Eggless, Available</span>
+    <span>&#9889; Delivery under 30 min</span>
+    <span>&#127874; Baked fresh daily</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <div class="hero-badge">Today's batch is out of the oven</div>
+      <h1>Baked this morning.<br><span class="hl">At your door by evening.</span></h1>
+      <p>Cakes, breads, pastries and cookies made in small batches in Girinagar &mdash; every one of them eggless. Order in three taps and watch it move from oven to door.</p>
+      <div class="hero-btns">
+        <a href="/menu.html" class="btn btn-primary">Order now</a>
+        <a href="/track.html" class="btn btn-outline">Track my order</a>
+      </div>
+      <div class="trust-row">
+        <div><strong>&#8377;40</strong>delivery to 2 km</div>
+        <div><strong>Same day</strong>baked to order</div>
+        <div><strong>100%</strong>eggless &amp; veg</div>
+      </div>
+    </div>
+
+    <!-- ADMIN-MANAGED BANNER lives here. Falls back to a placeholder. -->
+    <div class="hero-banner" id="bannerWrap">
+      <div class="banner-track" id="bannerTrack"></div>
+      <button class="banner-nav prev" onclick="bannerGo(-1)" aria-label="Previous">&#8249;</button>
+      <button class="banner-nav next" onclick="bannerGo(1)" aria-label="Next">&#8250;</button>
+      <div class="banner-dots" id="bannerDots"></div>
+      <div class="banner-empty" id="bannerEmpty">
+        <div style="font-size:44px">&#127874;</div>
+        <div style="font-weight:600;letter-spacing:.2em;font-size:11px;margin-top:10px">BANNER SLOT</div>
+        <div style="font-size:11.5px;opacity:.8;margin-top:4px">Upload from Admin &rarr; Banners</div>
+        <div style="font-size:11px;opacity:.65;margin-top:6px">Best fit: 1000&times;1125px portrait photo, subject centred</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll<i></i></div>
+</header>
+
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">The counter</span>
+      <h2>Shop by <span>category</span></h2>
+      <p>Everything on this page is baked on the day it's delivered.</p>
+    </div>
+    <a href="/menu.html" class="btn btn-outline btn-sm">See everything</a>
+  </div>
+  <div class="cat-grid" id="catChips"></div>
+</section>
+
+<section class="section container" style="padding-top:0">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Most ordered</span>
+      <h2>Our <span>bestsellers</span></h2>
+      <p>The ones our regulars come back for.</p>
+    </div>
+  </div>
+  <div class="grid" id="featuredGrid">
+    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+  </div>
+</section>
+
+<section class="section container" style="padding-top:0" id="occSection" hidden>
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Shop by moment</span>
+      <h2>Cakes for the <span>occasion</span></h2>
+      <p>Tell us what you're celebrating and we'll narrow it down.</p>
+    </div>
+  </div>
+  <div class="occ-grid" id="occGrid"></div>
+</section>
+
+<section class="container slot-wrap" id="slotOffers" hidden>
+  <div class="slot-band" id="slotOffersInner"></div>
+</section>
+
+<section class="section container" style="padding-top:0">
+  <div class="section-head center">
+    <div>
+      <span class="eyebrow">Why us</span>
+      <h2>What you get, <span>every order</span></h2>
+    </div>
+  </div>
+  <div class="feature-grid">
+    <div class="feature"><div class="fi">&#129360;</div><h4>Fresh ingredients</h4><p>Real butter, real cream, nothing sitting overnight.</p></div>
+    <div class="feature"><div class="fi">&#128666;</div><h4>Same-day delivery</h4><p>Most nearby orders arrive within 30 minutes.</p></div>
+    <div class="feature"><div class="fi">&#127874;</div><h4>Premium cakes</h4><p>Small batches, finished by hand, never mass-produced.</p></div>
+    <div class="feature"><div class="fi">&#129529;</div><h4>Hygienic kitchen</h4><p>FSSAI-certified, pure vegetarian, no shared surfaces.</p></div>
+    <div class="feature"><div class="fi">&#127859;</div><h4>Custom cakes</h4><p>Tell us the message, flavour and date at checkout.</p></div>
+    <div class="feature"><div class="fi">&#128274;</div><h4>Secure payment</h4><p>Encrypted through Razorpay. We never store card details.</p></div>
+  </div>
+</section>
+
+<section class="section container" style="padding-top:0">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">This week</span>
+      <h2>Trending <span>right now</span></h2>
+    </div>
+    <a href="/menu.html" class="btn btn-outline btn-sm">See the menu</a>
+  </div>
+  <div class="grid" id="trendingGrid"></div>
+</section>
+
+<section class="container slot-wrap" id="slotArrivals" hidden>
+  <div class="slot-band" id="slotArrivalsInner"></div>
+</section>
+
+<!-- Real customer reviews, pulled from the products people actually bought.
+     Hidden entirely when there are none. -->
+<!-- ABOUT PB BAKE HOUSE -->
+<section class="section container about-band">
+  <div class="ab-grid">
+    <div class="ab-art">
+      <div class="ab-art-main" id="abArtMain"></div>
+      <div class="ab-art-sub" id="abArtSub"></div>
+      <div class="ab-art-tag">
+        <b>Every single day</b>
+        <span>Since the first oven went on</span>
+      </div>
+    </div>
+
+    <div class="ab-copy">
+      <span class="eyebrow">About PB Bake House</span>
+      <h2>A neighbourhood bakery,<br>not a factory.</h2>
+
+      <div class="ab-block">
+        <h3>Our story</h3>
+        <p>What started as one home kitchen in Girinagar is now a small bakery serving
+        Banashankari and the streets around it. We never set out to be big. We set out to
+        make the kind of cake you would happily put in front of your own family.</p>
+      </div>
+
+      <div class="ab-block">
+        <h3>Freshly baked every day</h3>
+        <p>There is no overnight shelf here. Doughs are proved through the night, the first
+        loaves leave the oven by seven, and cakes are baked only once you have ordered them.
+        What reaches your door was made the same morning — that is the whole point.</p>
+      </div>
+
+      <div class="ab-block">
+        <h3>Why choose us</h3>
+        <ul class="ab-list">
+          <li><b>Completely eggless</b><span>Every item, every batch. No separate kitchen, no exceptions.</span></li>
+          <li><b>Pure vegetarian</b><span>Every ingredient we buy is veg-certified.</span></li>
+          <li><b>Small batches</b><span>We would rather sell out than bake ahead.</span></li>
+          <li><b>Fast, local delivery</b><span>Most nearby orders arrive within half an hour.</span></li>
+        </ul>
+      </div>
+
+      <div class="ab-cta">
+        <a href="/about.html" class="btn btn-primary">Read our story</a>
+        <a href="/menu.html" class="btn btn-outline">See the menu</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section container" style="padding-top:0" id="testiSection" hidden>
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">In their words</span>
+      <h2>What our <span>customers say</span></h2>
+      <p>Reviews left on the products below.</p>
+    </div>
+    <div class="rail-nav">
+      <button class="rail-btn" onclick="UI.railScroll('#testiRail',-1)" aria-label="Previous review">&#8249;</button>
+      <button class="rail-btn" onclick="UI.railScroll('#testiRail',1)" aria-label="Next review">&#8250;</button>
+    </div>
+  </div>
+  <div class="testi-rail" id="testiRail"></div>
+</section>
+
+<section class="container" style="padding-bottom:20px">
+</section>
+
+<section class="container slot-wrap" id="slotPromo" hidden>
+  <div class="slot-band slot-band-wide" id="slotPromoInner"></div>
+</section>
+
+<section class="container" style="padding-bottom:20px">
+  <div class="insta-cta">
+    <div class="insta-cta-txt">
+      <div class="insta-badge">Instagram exclusive</div>
+      <h3>Follow us and take <span>10% off</span> in store</h3>
+      <p>Follow <b id="instaHandle">@pb_bake_house</b>, show us at the counter, and we'll take 10% off what you buy that day.</p>
+      <a href="#" id="instaFollowBtn" target="_blank" rel="noopener" class="btn">Follow on Instagram &rarr;</a>
+    </div>
+    <div class="insta-cta-icon">&#128247;</div>
+  </div>
+</section>
+
+<section class="section container" style="padding-top:60px">
+  <div class="section-head center">
+    <div>
+      <span class="eyebrow">Credentials</span>
+      <h2>Trusted &amp; <span>certified</span></h2>
+      <p>The paperwork behind the pastry.</p>
+    </div>
+  </div>
+  <div class="partners">
+    <div class="partner"><div class="partner-ic">&#128737;</div><b id="pFssai">FSSAI licensed</b><span>Food safety certified</span></div>
+    <div class="partner"><div class="partner-ic">&#127807;</div><b>100% vegetarian</b><span>Pure veg kitchen</span></div>
+    <div class="partner"><div class="partner-ic">&#129534;</div><b id="pGst">GST registered</b><span>Fully compliant</span></div>
+    <div class="partner"><div class="partner-ic">&#128179;</div><b>Secure payments</b><span>Powered by Razorpay</span></div>
+    <div class="partner"><div class="partner-ic">&#11088;</div><b>Loved locally</b><span>Banashankari's favourite</span></div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  "name": "PB Bake House",
+  "image": "https://pbbakehouse.com/images/logo.png",
+  "logo": "https://pbbakehouse.com/images/logo.png",
+  "url": "https://pbbakehouse.com/",
+  "telephone": "+918971727805",
+  "priceRange": "₹₹",
+  "servesCuisine": "Bakery, Cakes, Desserts",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "6, 1st phase Girinagar, Avalahalli, Banashankari 1st Stage",
+    "addressLocality": "Bengaluru",
+    "addressRegion": "Karnataka",
+    "postalCode": "560085",
+    "addressCountry": "IN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 12.943563,
+    "longitude": 77.540188
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+      "opens": "07:00",
+      "closes": "21:30"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Sunday"],
+      "opens": "08:00",
+      "closes": "21:00"
+    }
+  ],
+  "sameAs": [
+    "https://www.instagram.com/pb_bake_house"
+  ]
+}
+</script>
+<script src="/js/main.js"></script>
+<script>
+mountShell('home');
+
+/* ---------- ADMIN BANNER CAROUSEL ---------- */
+let bannerIdx = 0, bannerCount = 0, bannerTimer = null;
+
+api('/banners?slot=hero').then(({ banners }) => {
+  const list = (banners || []).filter(b => b.image);
+  if (!list.length) return;                       // nothing uploaded yet
+  bannerCount = list.length;
+  const wrap = document.getElementById('bannerWrap');
+  const track = document.getElementById('bannerTrack');
+  const empty = document.getElementById('bannerEmpty');
+  if (empty) empty.style.display = 'none';        // real banners exist, hide placeholder
+
+  track.innerHTML = list.map(b => `
+    <div class="banner-slide">
+      <img src="${esc(b.image)}" alt="${esc(b.title || 'PB Bake House')}" loading="eager">
+      ${(b.title || b.subtitle) ? `
+        <div class="banner-caption">
+          ${b.title ? `<h2>${esc(b.title)}</h2>` : ''}
+          ${b.subtitle ? `<p>${esc(b.subtitle)}</p>` : ''}
+          ${b.link ? `<a href="${esc(b.link)}" class="btn btn-red">Shop now &rarr;</a>` : ''}
+        </div>` : ''}
+    </div>`).join('');
+
+  document.getElementById('bannerDots').innerHTML =
+    list.map((_, i) => `<button class="bdot${i === 0 ? ' on' : ''}" onclick="bannerSet(${i})" aria-label="Slide ${i + 1}"></button>`).join('');
+
+  wrap.classList.add('has-banners');
+  if (bannerCount > 1) startBannerAuto(); else document.querySelectorAll('.banner-nav,.banner-dots').forEach(e => e.style.display = 'none');
+}).catch(() => {});
+
+function bannerSet(i) {
+  if (!bannerCount) return;
+  bannerIdx = (i + bannerCount) % bannerCount;
+  document.getElementById('bannerTrack').style.transform = `translateX(-${bannerIdx * 100}%)`;
+  document.querySelectorAll('.bdot').forEach((d, n) => d.classList.toggle('on', n === bannerIdx));
+}
+function bannerGo(step) { bannerSet(bannerIdx + step); startBannerAuto(); }
+function startBannerAuto() {
+  clearInterval(bannerTimer);
+  bannerTimer = setInterval(() => bannerSet(bannerIdx + 1), 5000);
+}
+
+// Populate trust bar, Instagram CTA, and certifications from site config
+function fillHome(cfg) {
+  const ig = document.getElementById('instaFollowBtn');
+  if (ig) ig.href = cfg.instagram || '#';
+  const h = document.getElementById('instaHandle');
+  if (h && cfg.instagram_handle) h.textContent = '@' + cfg.instagram_handle;
+  if (cfg.fssai) { const a = document.getElementById('tbFssai'), b = document.getElementById('pFssai'); if (a) a.textContent = 'FSSAI: ' + cfg.fssai; if (b) b.textContent = 'FSSAI: ' + cfg.fssai; }
+  if (cfg.gst) { const g = document.getElementById('pGst'); if (g) g.textContent = 'GST: ' + cfg.gst; }
+}
+if (window.SITE) fillHome(window.SITE);
+document.addEventListener('siteconfig', e => fillHome(e.detail));
+
+/* ---------- CATEGORY CARDS ---------- */
+/* Category artwork comes from a real product in that category — fetched live,
+   never hardcoded. If the admin later adds a dedicated category image the
+   same slot will use it (see `c.image` below, which takes priority). */
+let CAT_ART = {};
+
+/* Pull categories and a representative photo for each in one pass. */
+Promise.all([
+  /* /categories carries admin-uploaded artwork. If it is unavailable for any
+     reason we fall back to the original endpoint, so the section never breaks. */
+  api('/categories').catch(() => api('/products/categories')),
+  api('/products?limit=60'),
+]).then(([{ categories }, { products }]) => {
+  CAT_ART = {};
+  (products || []).forEach(p => {
+    const k = String(p.category || '').toLowerCase().trim();
+    if (k && p.image && !CAT_ART[k]) CAT_ART[k] = p.image;
+  });
+
+  const el = document.getElementById('catChips');
+  el.innerHTML = categories.length ? categories.map(c => {
+    // Priority: admin-set category image, then a real product photo, then a plain tile.
+    const art = c.image || CAT_ART[String(c.name || '').toLowerCase().trim()] || '';
+    return `
+    <a href="/menu.html?category=${encodeURIComponent(c.name)}" class="cat-card${art ? '' : ' cat-plain'}">
+      ${art ? `<img src="${esc(art)}" alt="${esc(c.name)}" loading="lazy">` : ''}
+      <div class="cat-meta">
+        <b>${esc(c.name)}</b>
+        <span>${c.count} item${c.count === 1 ? '' : 's'}</span>
+      </div>
+      <div class="cat-arrow">&rarr;</div>
+    </a>`;
+  }).join('') : '';
+}).catch(() => {});
+
+/* About-section artwork: real photos, picked from whatever is on the menu. */
+api('/products?limit=12').then(({ products }) => {
+  const shots = (products || []).filter(p => p.image).map(p => p.image);
+  if (shots[0]) document.getElementById('abArtMain').style.backgroundImage = `url("${shots[0]}")`;
+  if (shots[1]) document.getElementById('abArtSub').style.backgroundImage = `url("${shots[1]}")`;
+}).catch(() => {});
+
+/* ---------- OCCASION COLLECTIONS ----------
+   Products are tagged from Admin -> Occasions. A collection only appears
+   once at least one product carries that tag, so no empty links are shown. */
+const OCCASIONS = [
+  { id: 'Birthday',    label: 'Birthday',    line: 'Candles, colour and a name on top' },
+  { id: 'Anniversary', label: 'Anniversary', line: 'Quieter, richer, usually chocolate' },
+  { id: 'Wedding',     label: 'Wedding',     line: 'Tiered centrepieces, ordered ahead' },
+  { id: 'Baby shower', label: 'Baby shower', line: 'Soft pastels and gentle flavours' },
+  { id: 'Congrats',    label: 'Congrats',    line: 'For results, promotions and firsts' },
+  { id: 'Thank you',   label: 'Thank you',   line: 'Small boxes that say a lot' },
+];
+
+Promise.all(OCCASIONS.map(o =>
+  api('/products?occasion=' + encodeURIComponent(o.id) + '&limit=1')
+    .then(r => ({ ...o, count: r.total || 0 }))
+    .catch(() => ({ ...o, count: 0 }))
+)).then(list => {
+  const live = list.filter(o => o.count > 0);
+  if (!live.length) return;                 // nothing tagged yet - stay hidden
+  document.getElementById('occGrid').innerHTML = live.map(o => `
+    <a href="/menu.html?occasion=${encodeURIComponent(o.id)}" class="occ-card">
+      <b>${esc(o.label)}</b>
+      <span>${esc(o.line)}</span>
+      <i>${o.count} cake${o.count === 1 ? '' : 's'} &rarr;</i>
+    </a>`).join('');
+  document.getElementById('occSection').hidden = false;
+  if (window.UI) UI.refresh();
+}).catch(() => {});
+
+/* ---------- HOMEPAGE BANNER SLOTS ----------
+   Each slot is managed from Admin -> Banners. A slot with no active banner
+   simply stays hidden, so the page never shows an empty frame. */
+function mountSlot(slot, sectionId, innerId) {
+  api('/banners?slot=' + slot).then(({ banners }) => {
+    const list = (banners || []).filter(b => b.image);
+    const host = document.getElementById(innerId);
+    const sect = document.getElementById(sectionId);
+    if (!list.length || !host || !sect) return;
+    const b = list[0];
+    const link = b.link || '/menu.html';
+    host.innerHTML = `
+      <a href="${esc(link)}" class="slot-link">
+        <img src="${esc(b.image)}" alt="${esc(b.title || 'Offer')}" loading="lazy">
+        ${(b.title || b.subtitle || b.cta_label) ? `<div class="slot-copy">
+          ${b.title ? `<h3>${esc(b.title)}</h3>` : ''}
+          ${b.subtitle ? `<p>${esc(b.subtitle)}</p>` : ''}
+          ${b.cta_label ? `<span class="btn btn-gold btn-sm">${esc(b.cta_label)} &rarr;</span>` : ''}
+        </div>` : ''}
+      </a>`;
+    sect.hidden = false;
+    if (window.UI) UI.refresh();
+  }).catch(() => {});
+}
+mountSlot('offers', 'slotOffers', 'slotOffersInner');
+mountSlot('new_arrivals', 'slotArrivals', 'slotArrivalsInner');
+mountSlot('promo', 'slotPromo', 'slotPromoInner');
+
+/* ---------- PRODUCT GRIDS ---------- */
+let featuredIds = [];
+api('/products?featured=1&limit=8').then(({ products }) => {
+  featuredIds = products.map(p => p.id);
+  document.getElementById('featuredGrid').innerHTML = products.length ? products.map(productCard).join('')
+    : `<div class="empty" style="grid-column:1/-1"><div class="ei">&#129473;</div><p>No featured products yet. Add them from the admin panel.</p></div>`;
+  loadTestimonials(products);
+}).catch(() => { document.getElementById('featuredGrid').innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>Could not load products. Refresh to try again.</p></div>'; });
+
+api('/products?trending=1&limit=4').then(({ products }) => {
+  const el = document.getElementById('trendingGrid');
+  if (!products.length) { el.closest('section').style.display = 'none'; return; }
+  el.innerHTML = products.map(productCard).join('');
+}).catch(() => {});
+
+/* ---------- REAL REVIEWS AS TESTIMONIALS ---------- */
+async function loadTestimonials(products) {
+  const pool = products.slice(0, 6).filter(p => Number(p.review_count) > 0);
+  if (!pool.length) return;
+  try {
+    const sets = await Promise.all(pool.map(p =>
+      api('/reviews/' + p.id).then(r => (r.reviews || []).map(x => ({ ...x, product: p.name }))).catch(() => [])
+    ));
+    const all = sets.flat().filter(r => Number(r.rating) >= 4 && String(r.comment || '').trim().length > 12).slice(0, 8);
+    if (!all.length) return;
+    document.getElementById('testiRail').innerHTML = all.map(r => `
+      <figure class="testi">
+        <span class="testi-quote">&rdquo;</span>
+        <span class="rs">${'\u2605'.repeat(Math.round(r.rating))}</span>
+        <p>${esc(r.comment)}</p>
+        <figcaption class="testi-who">
+          <div class="testi-av">${esc(String(r.name || '?').trim().charAt(0).toUpperCase())}</div>
+          <div><b>${esc(r.name)}</b><span>on ${esc(r.product)}</span></div>
+        </figcaption>
+      </figure>`).join('');
+    document.getElementById('testiSection').hidden = false;
+  } catch (e) { /* section simply stays hidden */ }
+}
+</script>
+</body>
+</html>
