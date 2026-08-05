@@ -3,9 +3,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { UPLOAD_ROOT } = require('../config/paths');
 
 function makeStorage(folder) {
-  const dir = path.join(__dirname, '..', 'uploads', folder);
+  const dir = path.join(UPLOAD_ROOT, folder);
   fs.mkdirSync(dir, { recursive: true });
   return multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, dir),
