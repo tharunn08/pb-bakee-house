@@ -7,25 +7,10 @@
    ============================================================ */
 'use strict';
 
-/* ---------- Theme: applied before first paint to avoid a flash ---------- */
-(function () {
-  try {
-    var saved = localStorage.getItem('pb_theme');
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
-  } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
-})();
+/* ---------- Theme: locked to light (dark mode removed) ---------- */
+document.documentElement.setAttribute('data-theme', 'light');
 
 const UI = {
-  /* Toggle light / dark and remember the choice. */
-  toggleTheme() {
-    const root = document.documentElement;
-    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    try { localStorage.setItem('pb_theme', next); } catch (e) {}
-    document.querySelectorAll('.theme-toggle i').forEach(i => i.textContent = next === 'dark' ? '☾' : '☀');
-  },
-
   /* ---------- Wishlist: browser-only, never sent anywhere ---------- */
   wish: {
     read() { try { return JSON.parse(localStorage.getItem('pb_wishlist') || '[]'); } catch (e) { return []; } },
@@ -274,9 +259,6 @@ window.UI = UI;
 /* Boot */
 document.addEventListener('DOMContentLoaded', () => {
   UI.init();
-  document.querySelectorAll('.theme-toggle i').forEach(i => {
-    i.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☾' : '☀';
-  });
 });
 
 /* Dismiss the opening curtain once everything is painted. */
