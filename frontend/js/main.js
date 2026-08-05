@@ -215,7 +215,6 @@ function mountShell(active = '') {
         <a href="/about.html" class="${active === 'about' ? 'active' : ''}">About</a>
       </div>
       <div class="nav-actions">
-        <button class="theme-toggle" onclick="UI.toggleTheme()" title="Switch theme" aria-label="Switch between light and dark"><i>\u2600</i></button>
         <button class="icon-btn hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
