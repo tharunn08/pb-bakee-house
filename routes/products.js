@@ -3,6 +3,7 @@ const router = require('express').Router();
 const fs = require('fs');
 const path = require('path');
 const { pool } = require('../config/db');
+const { UPLOAD_ROOT } = require('../config/paths');
 const { protect, adminOnly } = require('../middleware/auth');
 const { productUpload } = require('../middleware/upload');
 const { uuid, slugify, ok, bad, wrap, audit, adjustStock } = require('../utils/helpers');
@@ -130,7 +131,7 @@ router.delete('/:id', wrap(async (req, res) => {
   if (!rows.length) return bad(res, 404, 'Product not found');
   const img = rows[0].image;
   if (img && img.startsWith('/uploads/')) {
-    const p = path.join(__dirname, '..', img);
+    const p = path.join(UPLOAD_ROOT, img.replace(/^\/uploads\//, ''));
     fs.existsSync(p) && fs.unlink(p, () => {});
   }
   await pool.query('DELETE FROM products WHERE id=?', [req.params.id]);
