@@ -5,6 +5,7 @@ const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 const { uuid, makeOrderNo, ok, bad, wrap, audit, adjustStock, money, pushNotification, safeItems } = require('../utils/helpers');
 const { quote, cfg } = require('../utils/delivery');
 const { notifyAdminNewOrder, sendOrderConfirmation, sendStatusUpdate, notifyLowStock } = require('../utils/email');
+const razorpay = require('../utils/razorpay');
 
 const VALID_STATUS = ['pending','accepted','preparing','ready','out_for_delivery','delivered','cancelled'];
 
@@ -121,11 +122,46 @@ router.post('/', optionalAuth, wrap(async (req, res) => {
   ok(res, { order, message: 'Order created — awaiting payment' });
 }));
 
-// Confirm payment for an order. In MOCK mode (PAYMENT_MODE=mock or no Razorpay
-// secret configured) this simply marks the order paid so the flow can complete
-// end-to-end. When you later add real Razorpay keys, verify the signature here.
+// Create a Razorpay order for an existing PB Bake House order so the
+// frontend can open the real Razorpay Checkout popup. Only works when
+// PAYMENT_MODE=live and both Razorpay keys are set — otherwise the frontend
+// falls back to the old manual-confirm flow, so nothing else breaks.
+router.post('/:order_no/create-payment', wrap(async (req, res) => {
+  const { phone } = req.body;
+  const [rows] = await pool.query('SELECT * FROM orders WHERE order_no=?', [req.params.order_no]);
+  if (!rows.length) return bad(res, 404, 'Order not found');
+  const o = rows[0];
+  if (phone && String(phone) !== String(o.customer_phone))
+    return bad(res, 403, 'Phone does not match this order');
+  if (o.payment_status === 'paid') return bad(res, 400, 'This order is already paid');
+  if (!razorpay.isLive()) return bad(res, 400, 'Live payments are not enabled on this server');
+
+  // Reuse the Razorpay order if the customer re-opens the payment popup
+  // (e.g. closed it and clicked Pay again) instead of creating a duplicate.
+  let razorpayOrderId = o.razorpay_order_id;
+  if (!razorpayOrderId) {
+    const rzOrder = await razorpay.createOrder({
+      amount: Number(o.total), receipt: o.order_no, notes: { order_no: o.order_no },
+    });
+    razorpayOrderId = rzOrder.id;
+    await pool.query('UPDATE orders SET razorpay_order_id=? WHERE id=?', [razorpayOrderId, o.id]);
+  }
+  ok(res, {
+    razorpay_order_id: razorpayOrderId,
+    amount: Math.round(Number(o.total) * 100),
+    currency: 'INR',
+    key_id: razorpay.KEY_ID,
+    order_no: o.order_no,
+  });
+}));
+
+// Confirm payment for an order. In MOCK mode (PAYMENT_MODE=mock, or no
+// Razorpay keys configured) this simply marks the order paid so the flow can
+// be tested end-to-end without real money. In LIVE mode, the payment is only
+// ever marked paid after the Razorpay signature is verified server-side —
+// the browser's word alone is never trusted.
 router.post('/:order_no/confirm-payment', wrap(async (req, res) => {
-  const { phone, razorpay_payment_id, razorpay_signature } = req.body;
+  const { phone, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
   const [rows] = await pool.query('SELECT * FROM orders WHERE order_no=?', [req.params.order_no]);
   if (!rows.length) return bad(res, 404, 'Order not found');
   const o = rows[0];
@@ -133,12 +169,17 @@ router.post('/:order_no/confirm-payment', wrap(async (req, res) => {
   if (phone && String(phone) !== String(o.customer_phone))
     return bad(res, 403, 'Phone does not match this order');
 
-  const mockMode = String(process.env.PAYMENT_MODE || 'mock').toLowerCase() !== 'live' || !process.env.RAZORPAY_KEY_SECRET;
-  if (!mockMode) {
-    // Real verification would go here (HMAC of order_id|payment_id with key secret).
-    if (!razorpay_payment_id || !razorpay_signature)
+  const live = razorpay.isLive();
+  if (live) {
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature)
       return bad(res, 400, 'Missing payment verification details');
-    // ...verify signature... (left for when live keys are added)
+    // The Razorpay order id returned by the popup must match the one we
+    // created for THIS order — stops a signature from a different order
+    // (or a different customer's payment) being replayed here.
+    if (o.razorpay_order_id && o.razorpay_order_id !== razorpay_order_id)
+      return bad(res, 400, 'Payment does not match this order');
+    if (!razorpay.verifySignature({ razorpay_order_id, razorpay_payment_id, razorpay_signature }))
+      return bad(res, 400, 'Payment verification failed — this payment could not be confirmed');
   }
 
   if (o.payment_status !== 'paid') {
@@ -157,7 +198,7 @@ router.post('/:order_no/confirm-payment', wrap(async (req, res) => {
     notifyAdminNewOrder(order).catch(e => console.error('admin mail:', e.message));
     sendOrderConfirmation(order).catch(e => console.error('customer mail:', e.message));
   }
-  ok(res, { order_no: o.order_no, payment_status: 'paid', mock: mockMode });
+  ok(res, { order_no: o.order_no, payment_status: 'paid', mock: !live });
 }));
 
 router.get('/track/:order_no', wrap(async (req, res) => {
