@@ -36,6 +36,11 @@ router.get('/site-config', wrap(async (_req, res) => {
     instagram_discount: n(process.env.INSTAGRAM_FOLLOW_DISCOUNT, 10),
     razorpay_link: process.env.RAZORPAY_PAYMENT_LINK || 'https://razorpay.me/@pbbakehouse',
     razorpay_key_id: process.env.RAZORPAY_KEY_ID || '',
+    // Tells the storefront whether to open the real Razorpay Checkout popup
+    // or fall back to the manual-confirm flow. Never trust the client to
+    // decide this itself — it always mirrors what the server will enforce.
+    razorpay_mode: (String(process.env.PAYMENT_MODE || 'mock').toLowerCase() === 'live'
+      && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) ? 'live' : 'mock',
     delivery: {
       base_fare: n(process.env.DELIVERY_BASE_FARE, 40),
       base_km: n(process.env.DELIVERY_BASE_KM, 2),
