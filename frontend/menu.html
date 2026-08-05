@@ -70,7 +70,7 @@
       <div class="filter-group">
         <h4>Good to know</h4>
         <div class="rule-strip" style="margin-top:0">
-          <span>&#129370; Eggless available</span>
+          <span>&#129370; Everything eggless</span>
           <span>&#127807; Pure veg kitchen</span>
           <span>&#9889; Under 30 min nearby</span>
         </div>
@@ -199,7 +199,7 @@ async function load() {
 function cardWithQuick(p) {
   return productCard(p).replace(
     '<div class="card-foot">',
-    `<button class="btn btn-ghost btn-sm" style="margin-top:10px;padding:6px 0;min-height:auto;justify-content:flex-start;font-size:12px;letter-spacing:.06em"
+    `<button class="btn btn-ghost btn-sm" style="margin-top:4px;padding:2px 0;min-height:auto;justify-content:flex-start;font-size:11.5px;letter-spacing:.06em"
        onclick="openQuick('${p.id}')">Quick view</button><div class="card-foot">`
   );
 }
