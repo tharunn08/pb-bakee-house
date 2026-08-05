@@ -14,9 +14,16 @@ const { Server } = require('socket.io');
 const { pool, testConnection } = require('./config/db');
 const { runSchema } = require('./config/schema');
 const { uuid } = require('./utils/helpers');
+const { UPLOAD_ROOT } = require('./config/paths');
 
 const app = express();
 const server = http.createServer(app);
+
+// Hostinger (and most hosts) sit behind a reverse proxy. Without this,
+// express-rate-limit can't reliably read the real client IP from
+// X-Forwarded-For and throws/misbehaves. '1' = trust exactly one hop
+// (the platform's proxy) in front of the app.
+app.set('trust proxy', 1);
 
 const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 app.set('io', io);
@@ -59,7 +66,7 @@ app.use('/api/orders', (req, res, next) => {
   next();
 });
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(UPLOAD_ROOT));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use(express.static(path.join(__dirname, 'frontend'), {
   maxAge: '1d',            // browser caching for CSS/JS/images
