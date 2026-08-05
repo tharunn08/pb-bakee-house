@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" type="image/png" href="/images/logo.png">
 <link rel="apple-touch-icon" href="/images/logo.png">
-<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/style.css?v=20260805">
 <script src="/js/ui.js"></script>
 </head>
 <body>
@@ -135,6 +135,7 @@
 </section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/js/main.js"></script>
 <script>
 mountShell();
@@ -444,7 +445,7 @@ function openPayment(order) {
           <span>&#9679;</span>
           <span>Powered by Razorpay</span>
         </div>
-        <div class="pay-fine">Test mode &mdash; no real money is charged.</div>
+        <div class="pay-fine" id="payFine">${(cfg.razorpay_mode === 'live') ? 'You will be redirected to Razorpay\'s secure checkout.' : 'Test mode &mdash; no real money is charged.'}</div>
       </div>
     </div>`;
   document.body.appendChild(modal);
@@ -457,17 +458,71 @@ function openPayment(order) {
     if (e.key === 'Escape') { shut(); document.removeEventListener('keydown', esc); }
   });
 
+  const resetBtn = (b) => {
+    b.disabled = false;
+    b.innerHTML = `<span class="pay-cta-main">Pay ${rupee(order.total)}</span><span class="pay-cta-sub">Card \u00b7 UPI \u00b7 Netbanking</span>`;
+  };
+
   document.getElementById('payDoBtn').onclick = async () => {
     const b = document.getElementById('payDoBtn');
+    const live = cfg.razorpay_mode === 'live' && !!cfg.razorpay_key_id;
+
+    if (live) {
+      b.disabled = true; b.innerHTML = '<span class="pay-cta-main">Opening secure checkout\u2026</span>';
+      try {
+        const { razorpay_order_id, amount, currency, key_id } = await api(
+          `/orders/${order.order_no}/create-payment`, { method: 'POST', body: { phone: order.customer_phone } });
+
+        if (typeof Razorpay === 'undefined') throw new Error('Payment gateway failed to load. Please refresh and try again.');
+
+        const rz = new Razorpay({
+          key: key_id,
+          order_id: razorpay_order_id,
+          amount, currency,
+          name: 'PB Bake House',
+          description: `Order #${order.order_no}`,
+          prefill: {
+            name: order.customer_name, contact: order.customer_phone, email: order.customer_email || '',
+          },
+          theme: { color: '#8B4513' },
+          handler: async (resp) => {
+            try {
+              await api(`/orders/${order.order_no}/confirm-payment`, { method: 'POST', body: {
+                phone: order.customer_phone,
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_order_id: resp.razorpay_order_id,
+                razorpay_signature: resp.razorpay_signature,
+              } });
+              Cart.clear();
+              location.href = `/success.html?order=${order.order_no}&paid=1`;
+            } catch (e) {
+              toast(e.message || 'We could not verify that payment. Please contact us before trying again.', 'err');
+              resetBtn(b);
+            }
+          },
+          modal: { ondismiss: () => resetBtn(b) },
+        });
+        rz.on('payment.failed', (resp) => {
+          toast(resp?.error?.description || 'Payment failed. No amount was deducted.', 'err');
+          resetBtn(b);
+        });
+        shut(); // close our own modal — Razorpay shows its own secure popup
+        rz.open();
+      } catch (e) {
+        toast(e.message, 'err'); resetBtn(b);
+      }
+      return;
+    }
+
+    // Mock/dev fallback — used only when live payments aren't configured yet.
     b.disabled = true; b.innerHTML = '<span class="pay-cta-main">Processing\u2026</span>';
     try {
-      // Mock payment confirmation (server marks order paid)
       await api(`/orders/${order.order_no}/confirm-payment`, { method: 'POST', body: { phone: order.customer_phone } });
       await new Promise(r => setTimeout(r, 900)); // simulate gateway
       Cart.clear();
       location.href = `/success.html?order=${order.order_no}&paid=1`;
     } catch (e) {
-      toast(e.message, 'err'); b.disabled = false; b.innerHTML = `<span class="pay-cta-main">Pay ${rupee(order.total)}</span><span class="pay-cta-sub">Card \u00b7 UPI \u00b7 Netbanking</span>`;
+      toast(e.message, 'err'); resetBtn(b);
     }
   };
 }
