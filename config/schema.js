@@ -284,6 +284,10 @@ const COLUMNS = [
     ddl: "ALTER TABLE custom_cake_requests ADD COLUMN design_title VARCHAR(120) DEFAULT ''" },
   { table: 'categories', column: 'description',
     ddl: "ALTER TABLE categories ADD COLUMN description VARCHAR(300) DEFAULT ''" },
+  // Binds an order to the Razorpay order created for it, so confirm-payment
+  // can check the signature belongs to THIS order and not a replayed one.
+  { table: 'orders', column: 'razorpay_order_id',
+    ddl: "ALTER TABLE orders ADD COLUMN razorpay_order_id VARCHAR(64) DEFAULT ''" },
 ];
 
 async function columnExists(table, column) {
