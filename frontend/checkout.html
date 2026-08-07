@@ -109,6 +109,7 @@
         <h3>Order summary</h3>
         <div id="freeHint"></div>
         <div id="sumItems"></div>
+        <div id="couponSuggest"></div>
         <div class="field" style="margin-top:14px" id="couponField">
           <label for="fCoupon">Coupon code</label>
           <div style="display:flex;gap:8px">
@@ -151,6 +152,32 @@ function loadCfg(config2) {
 }
 if (window.SITE) loadCfg(window.SITE);
 document.addEventListener('siteconfig', e => loadCfg(e.detail));
+
+// Surface any admin-created active coupons up front instead of making the
+// customer already know a code to type in. Tapping a suggestion fills the
+// field and applies it immediately.
+let activeCoupons = [];
+async function loadActiveCoupons() {
+  try {
+    const { coupons } = await api('/coupons/active');
+    activeCoupons = coupons || [];
+    paintCouponSuggest();
+  } catch { /* non-critical — checkout still works without suggestions */ }
+}
+function paintCouponSuggest() {
+  const box = document.getElementById('couponSuggest');
+  if (!box) return;
+  if (appliedCouponData || !activeCoupons.length) { box.innerHTML = ''; return; }
+  box.innerHTML = activeCoupons.map(c => {
+    const desc = c.type === 'percent'
+      ? `${c.value}% off${Number(c.min_order) > 0 ? ` above ${rupee(c.min_order)}` : ''}`
+      : `${rupee(c.value)} off${Number(c.min_order) > 0 ? ` above ${rupee(c.min_order)}` : ''}`;
+    return `<div class="coupon-badge coupon-suggest" onclick="fCoupon.value='${esc(c.code)}';applyCoupon()">
+      <div><b>🏷️ ${esc(c.code)}</b><br><span>${esc(desc)} — tap to apply</span></div>
+    </div>`;
+  }).join('');
+}
+loadActiveCoupons();
 
 function setType(t) {
   orderType = t;
@@ -309,8 +336,10 @@ function paintCouponBadge() {
     badge.innerHTML = '';
     inputRow.style.display = 'flex';
     fCoupon.value = appliedCoupon || fCoupon.value;
+    paintCouponSuggest();
     return;
   }
+  document.getElementById('couponSuggest').innerHTML = '';
   const c = appliedCouponData;
   const desc = c.type === 'percent'
     ? `${c.value}% off${Number(c.max_discount) > 0 ? ` (up to ${rupee(c.max_discount)})` : ''}${Number(c.min_order) > 0 ? ` on orders above ${rupee(c.min_order)}` : ''}`
