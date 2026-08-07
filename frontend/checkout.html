@@ -109,7 +109,8 @@
         <h3>Order summary</h3>
         <div id="freeHint"></div>
         <div id="sumItems"></div>
-        <div id="couponSuggest"></div>
+        <div id="sumTotals" style="margin-top:14px"></div>
+        <div id="couponBadge"></div>
         <div class="field" style="margin-top:14px" id="couponField">
           <label for="fCoupon">Coupon code</label>
           <div style="display:flex;gap:8px">
@@ -117,9 +118,7 @@
             <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
           </div>
           <div class="err-msg" id="eCoupon"></div>
-          <div id="couponBadge"></div>
         </div>
-        <div id="sumTotals" style="margin-top:14px"></div>
         <button class="btn btn-red btn-block" id="placeBtn" style="margin-top:16px" onclick="placeOrder()">Pay and place order</button>
         <p style="font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:10px">You'll get an email confirmation and live status updates.</p>
       </div>
@@ -153,29 +152,21 @@ function loadCfg(config2) {
 if (window.SITE) loadCfg(window.SITE);
 document.addEventListener('siteconfig', e => loadCfg(e.detail));
 
-// Surface any admin-created active coupons up front instead of making the
-// customer already know a code to type in. Tapping a suggestion fills the
-// field and applies it immediately.
+// Surface any admin-created active coupon up front instead of making the
+// customer already know a code to type in — a dashed badge under the total
+// advertises it. Tapping it fills the field and applies it immediately.
 let activeCoupons = [];
 async function loadActiveCoupons() {
   try {
     const { coupons } = await api('/coupons/active');
     activeCoupons = coupons || [];
-    paintCouponSuggest();
-  } catch { /* non-critical — checkout still works without suggestions */ }
+    paintCouponBadge();
+  } catch { /* non-critical — checkout still works without a suggestion */ }
 }
-function paintCouponSuggest() {
-  const box = document.getElementById('couponSuggest');
-  if (!box) return;
-  if (appliedCouponData || !activeCoupons.length) { box.innerHTML = ''; return; }
-  box.innerHTML = activeCoupons.map(c => {
-    const desc = c.type === 'percent'
-      ? `${c.value}% off${Number(c.min_order) > 0 ? ` above ${rupee(c.min_order)}` : ''}`
-      : `${rupee(c.value)} off${Number(c.min_order) > 0 ? ` above ${rupee(c.min_order)}` : ''}`;
-    return `<div class="coupon-badge coupon-suggest" onclick="fCoupon.value='${esc(c.code)}';applyCoupon()">
-      <div><b>🏷️ ${esc(c.code)}</b><br><span>${esc(desc)} — tap to apply</span></div>
-    </div>`;
-  }).join('');
+function couponDesc(c) {
+  return c.type === 'percent'
+    ? `${c.value}% off${Number(c.min_order) > 0 ? ` above ${rupee(c.min_order)}` : ''}`
+    : `${rupee(c.value)} off${Number(c.min_order) > 0 ? ` above ${rupee(c.min_order)}` : ''}`;
 }
 loadActiveCoupons();
 
@@ -326,30 +317,29 @@ async function applyCoupon() {
   if (coords && orderType === 'delivery') await quoteDelivery(); else renderSummary();
 }
 
-// Renders the applied coupon as a badge (code + what it does) instead of a
-// plain line of text, and swaps the input row out so it reads like a
-// confirmed offer rather than an empty form field.
+// One dashed badge under the total, in both states:
+//  - a coupon exists but isn't applied yet -> advertises code + benefit
+//  - a coupon is applied -> same badge, plus a way to remove it
+// The input row underneath always stays visible/editable, matching the
+// reference layout (badge on top, input below, error message under that).
 function paintCouponBadge() {
   const badge = document.getElementById('couponBadge');
-  const inputRow = fCoupon.closest('div');
-  if (!appliedCouponData) {
+  if (appliedCouponData) {
+    const c = appliedCouponData;
+    badge.innerHTML = `
+      <div class="coupon-badge">
+        <div><b>${esc(appliedCoupon)}</b><br><span>${esc(couponDesc(c))}</span></div>
+        <button type="button" onclick="removeCoupon()" aria-label="Remove coupon" title="Remove coupon">✕</button>
+      </div>`;
+  } else if (activeCoupons.length) {
+    const c = activeCoupons[0];
+    badge.innerHTML = `
+      <div class="coupon-badge" onclick="fCoupon.value='${esc(c.code)}'" style="cursor:pointer">
+        <div><b>${esc(c.code)}</b><br><span>${esc(couponDesc(c))}</span></div>
+      </div>`;
+  } else {
     badge.innerHTML = '';
-    inputRow.style.display = 'flex';
-    fCoupon.value = appliedCoupon || fCoupon.value;
-    paintCouponSuggest();
-    return;
   }
-  document.getElementById('couponSuggest').innerHTML = '';
-  const c = appliedCouponData;
-  const desc = c.type === 'percent'
-    ? `${c.value}% off${Number(c.max_discount) > 0 ? ` (up to ${rupee(c.max_discount)})` : ''}${Number(c.min_order) > 0 ? ` on orders above ${rupee(c.min_order)}` : ''}`
-    : `${rupee(c.value)} off${Number(c.min_order) > 0 ? ` on orders above ${rupee(c.min_order)}` : ''}`;
-  badge.innerHTML = `
-    <div class="coupon-badge">
-      <div><b>${esc(appliedCoupon)}</b><br><span>${esc(desc)}</span></div>
-      <button type="button" onclick="removeCoupon()" aria-label="Remove coupon" title="Remove coupon">✕</button>
-    </div>`;
-  inputRow.style.display = 'none';
 }
 
 function removeCoupon() {
