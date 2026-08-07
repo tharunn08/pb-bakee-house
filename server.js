@@ -5,11 +5,23 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Server } = require('socket.io');
+
+// A crash from one bad request (a malformed upload, an unexpected DB error
+// deep in a callback, etc.) should never take the whole server down while
+// hundreds of other customers have orders in flight. Log it loudly and keep
+// serving — this is a safety net, not a substitute for fixing root causes.
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION:', err && err.stack || err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err && err.stack || err);
+});
 
 const { pool, testConnection } = require('./config/db');
 const { runSchema } = require('./config/schema');
@@ -45,6 +57,10 @@ io.on('connection', socket => {
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
 app.disable('x-powered-by');
 app.use(cors({ origin: process.env.FRONTEND_URL || '*', credentials: true }));
+// Gzip every JSON/HTML/CSS/JS response. With hundreds of members loading the
+// same menu/product data, this cuts bandwidth and speeds up page loads
+// noticeably on shared hosting without any downside.
+app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
@@ -66,7 +82,11 @@ app.use('/api/orders', (req, res, next) => {
   next();
 });
 
-app.use('/uploads', express.static(UPLOAD_ROOT));
+// Uploaded filenames are randomized on write (timestamp + random hex), so the
+// same filename never changes content — safe to cache aggressively, which
+// meaningfully cuts repeat image bandwidth once hundreds of people are
+// browsing the same product photos.
+app.use('/uploads', express.static(UPLOAD_ROOT, { maxAge: '30d', immutable: true }));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use(express.static(path.join(__dirname, 'frontend'), {
   maxAge: '1d',            // browser caching for CSS/JS/images
