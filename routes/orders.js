@@ -220,9 +220,17 @@ router.get('/mine', protect, wrap(async (req, res) => {
 /* ADMIN */
 router.use(protect, adminOnly);
 
+// Every order placed through the storefront is payment_method='online'. The
+// row is inserted the moment checkout starts (so Razorpay has an order_no to
+// attach to) but should stay invisible to the kitchen/admin until the
+// payment actually clears — otherwise an abandoned/cancelled checkout shows
+// up as a phantom order forever. COD orders (payment_method<>'online', if
+// ever enabled) are unaffected since they're expected to be unpaid upfront.
+const PAID_ONLY = "(payment_status IN ('paid','refunded') OR payment_method<>'online')";
+
 router.get('/', wrap(async (req, res) => {
   const { status, date, from, to, search, limit = 100, page = 1 } = req.query;
-  const where = [], args = [];
+  const where = [PAID_ONLY], args = [];
   if (status && status !== 'all') { where.push('status=?'); args.push(status); }
 
   // Flexible date filtering:
@@ -258,13 +266,13 @@ router.get('/', wrap(async (req, res) => {
 
 router.get('/kitchen', wrap(async (_req, res) => {
   const [rows] = await pool.query(
-    `SELECT * FROM orders WHERE status IN ('pending','accepted','preparing','ready') ORDER BY created_at ASC`);
+    `SELECT * FROM orders WHERE status IN ('pending','accepted','preparing','ready') AND ${PAID_ONLY} ORDER BY created_at ASC`);
   ok(res, { orders: rows.map(o => ({ ...o, items: safeItems(o.items) })) });
 }));
 
 router.get('/deliveries', wrap(async (req, res) => {
   const { date, from, to } = req.query;
-  const where = ["order_type='delivery'"], args = [];
+  const where = ["order_type='delivery'", PAID_ONLY], args = [];
   if (from && to) { where.push('DATE(created_at) BETWEEN ? AND ?'); args.push(from, to); }
   else if (date === 'today') where.push('DATE(created_at)=CURDATE()');
   else if (date === 'yesterday') where.push('DATE(created_at)=CURDATE()-INTERVAL 1 DAY');
