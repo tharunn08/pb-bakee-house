@@ -36,8 +36,7 @@
   <div class="co-steps">
     <div class="co-step on"><i>1</i><span>Your details</span></div><div class="co-step-line"></div>
     <div class="co-step on"><i>2</i><span>Delivery</span></div><div class="co-step-line"></div>
-    <div class="co-step on"><i>3</i><span>Timing</span></div><div class="co-step-line"></div>
-    <div class="co-step on"><i>4</i><span>Payment</span></div>
+    <div class="co-step on"><i>3</i><span>Payment</span></div>
   </div>
   <div style="display:grid;grid-template-columns:1.35fr .85fr;gap:24px" id="layout">
     <div>
@@ -90,15 +89,7 @@
       </div>
 
       <div class="panel" style="margin-bottom:20px">
-        <h3>When do you need it?</h3>
-        <div class="field-row">
-          <div class="field"><label class="label-lg" for="fDate">Delivery date</label>
-            <div class="date-wrap"><input id="fDate" type="date" class="date-input">
-            <span class="date-ph" aria-hidden="true">DD-MM-YYYY</span></div></div>
-          <div class="field"><label class="label-lg" for="fSlot">Time slot</label>
-            <select id="fSlot"><option value="">As soon as possible</option><option>9 AM - 12 PM</option><option>12 PM - 3 PM</option><option>3 PM - 6 PM</option><option>6 PM - 9 PM</option></select>
-          </div>
-        </div>
+        <h3>Anything we should know?</h3>
         <div class="field"><label for="fNotes">Special instructions</label><textarea id="fNotes" placeholder="Message on cake, allergies, gate code..."></textarea></div>
       </div>
 
@@ -118,13 +109,14 @@
         <h3>Order summary</h3>
         <div id="freeHint"></div>
         <div id="sumItems"></div>
-        <div class="field" style="margin-top:14px">
+        <div class="field" style="margin-top:14px" id="couponField">
           <label for="fCoupon">Coupon code</label>
           <div style="display:flex;gap:8px">
             <input id="fCoupon" placeholder="Enter a code" style="text-transform:uppercase">
             <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
           </div>
-          <div class="err-msg" id="eCoupon" style="color:var(--ok)"></div>
+          <div class="err-msg" id="eCoupon"></div>
+          <div id="couponBadge"></div>
         </div>
         <div id="sumTotals" style="margin-top:14px"></div>
         <button class="btn btn-red btn-block" id="placeBtn" style="margin-top:16px" onclick="placeOrder()">Pay and place order</button>
@@ -142,7 +134,6 @@ mountShell();
 let orderType = 'delivery', coords = null, currentQuote = null, config = null, payMethod = 'online', appliedCoupon = '', appliedCouponData = null;
 const u = Auth.user();
 if (u) { fName.value = u.name || ''; fPhone.value = u.phone || ''; fEmail.value = u.email || ''; }
-fDate.min = new Date().toISOString().slice(0, 10);
 
 liveFilter(fName, 'name'); liveFilter(fPhone, 'phone'); liveFilter(fPin, 'pincode');
 fName.addEventListener('blur', () => mark(fName, eName, Validate.name(fName.value), 'Use letters only (min 2)'));
@@ -289,22 +280,55 @@ async function quoteDelivery() {
 async function applyCoupon() {
   const code = fCoupon.value.trim().toUpperCase();
   const eEl = document.getElementById('eCoupon');
-  if (!code) { appliedCoupon = ''; appliedCouponData = null; eEl.textContent = ''; renderSummary(); return; }
+  if (!code) { appliedCoupon = ''; appliedCouponData = null; eEl.textContent = ''; paintCouponBadge(); renderSummary(); return; }
   // Look up the coupon among active coupons for live discount preview
   try {
     const { coupons } = await api('/coupons/active');
     const found = (coupons || []).find(c => c.code.toUpperCase() === code);
-    if (!found) { appliedCoupon = ''; appliedCouponData = null; eEl.style.color = 'var(--red)'; eEl.textContent = 'Invalid or expired coupon'; renderSummary(); return; }
+    if (!found) { appliedCoupon = ''; appliedCouponData = null; eEl.style.color = 'var(--red)'; eEl.textContent = 'Invalid or expired coupon'; paintCouponBadge(); renderSummary(); return; }
     const subtotal = Cart.subtotal();
     if (subtotal < Number(found.min_order)) {
       appliedCoupon = ''; appliedCouponData = null; eEl.style.color = 'var(--red)';
       eEl.textContent = `Minimum order ${rupee(found.min_order)} required for ${code}`;
-      renderSummary(); return;
+      paintCouponBadge(); renderSummary(); return;
     }
     appliedCoupon = code; appliedCouponData = found;
-    eEl.style.color = 'var(--ok)'; eEl.textContent = `${code} applied ✓`;
+    eEl.textContent = '';
   } catch { appliedCoupon = code; appliedCouponData = null; }
+  paintCouponBadge();
   if (coords && orderType === 'delivery') await quoteDelivery(); else renderSummary();
+}
+
+// Renders the applied coupon as a badge (code + what it does) instead of a
+// plain line of text, and swaps the input row out so it reads like a
+// confirmed offer rather than an empty form field.
+function paintCouponBadge() {
+  const badge = document.getElementById('couponBadge');
+  const inputRow = fCoupon.closest('div');
+  if (!appliedCouponData) {
+    badge.innerHTML = '';
+    inputRow.style.display = 'flex';
+    fCoupon.value = appliedCoupon || fCoupon.value;
+    return;
+  }
+  const c = appliedCouponData;
+  const desc = c.type === 'percent'
+    ? `${c.value}% off${Number(c.max_discount) > 0 ? ` (up to ${rupee(c.max_discount)})` : ''}${Number(c.min_order) > 0 ? ` on orders above ${rupee(c.min_order)}` : ''}`
+    : `${rupee(c.value)} off${Number(c.min_order) > 0 ? ` on orders above ${rupee(c.min_order)}` : ''}`;
+  badge.innerHTML = `
+    <div class="coupon-badge">
+      <div><b>${esc(appliedCoupon)}</b><br><span>${esc(desc)}</span></div>
+      <button type="button" onclick="removeCoupon()" aria-label="Remove coupon" title="Remove coupon">✕</button>
+    </div>`;
+  inputRow.style.display = 'none';
+}
+
+function removeCoupon() {
+  fCoupon.value = '';
+  appliedCoupon = ''; appliedCouponData = null;
+  document.getElementById('eCoupon').textContent = '';
+  paintCouponBadge();
+  if (coords && orderType === 'delivery') quoteDelivery(); else renderSummary();
 }
 
 function computeDiscount(subtotal) {
@@ -390,7 +414,7 @@ async function placeOrder() {
       customer_name: fName.value.trim(), customer_phone: fPhone.value.trim(), customer_email: fEmail.value.trim().toLowerCase(),
       items: Cart.read().map(i => ({ id: i.id, qty: i.qty })), order_type: orderType,
       address_line: fAddress.value.trim(), city: fCity.value.trim(), pincode: fPin.value.trim(),
-      lat: coords?.lat, lng: coords?.lng, delivery_date: fDate.value || null, delivery_slot: fSlot.value,
+      lat: coords?.lat, lng: coords?.lng, delivery_date: null, delivery_slot: '',
       notes: fNotes.value.trim(), coupon_code: (appliedCoupon || fCoupon.value.trim().toUpperCase()),
       payment_method: 'online',
     } });
