@@ -54,9 +54,15 @@ async function testConnection() {
 }
 
 // Every fresh pool connection re-declares its collation so string literals and
-// columns always compare under the same rule.
+// columns always compare under the same rule. It also pins the session to
+// IST: Hostinger's MySQL (and Node process) default to UTC, so without this
+// every CURRENT_TIMESTAMP/NOW()/CURDATE() used for created_at, "today"
+// filters, and coupon expiry is off by 5:30 hours — that's exactly why an
+// order placed minutes ago in the admin panel showed as "5h ago". New rows
+// written after this change store the correct IST wall-clock time.
 pool.on('connection', c => {
   c.query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+  c.query("SET time_zone = '+05:30'");
 });
 
 module.exports = { pool, testConnection };
