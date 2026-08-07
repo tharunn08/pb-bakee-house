@@ -6,6 +6,10 @@ const { uuid, ok, bad, wrap, audit, money, safeItems } = require('../utils/helpe
 
 router.use(protect, adminOnly);
 
+// Keeps abandoned/unpaid online checkouts out of every admin-facing count and
+// revenue figure — see the matching constant + comment in routes/orders.js.
+const PAID_ONLY = "(payment_status IN ('paid','refunded') OR payment_method<>'online')";
+
 router.get('/dashboard', wrap(async (_req, res) => {
   const [[today]] = await pool.query(`
     SELECT COUNT(*) AS orders,
@@ -14,21 +18,21 @@ router.get('/dashboard', wrap(async (_req, res) => {
       SUM(status='preparing') AS preparing, SUM(status='ready') AS ready,
       SUM(status='out_for_delivery') AS out_for_delivery,
       SUM(status='delivered') AS delivered, SUM(status='cancelled') AS cancelled
-    FROM orders WHERE DATE(created_at)=CURDATE()`);
+    FROM orders WHERE DATE(created_at)=CURDATE() AND ${PAID_ONLY}`);
   const [[yesterday]] = await pool.query(`
     SELECT COALESCE(SUM(CASE WHEN status<>'cancelled' THEN total END),0) AS revenue
-    FROM orders WHERE DATE(created_at)=CURDATE()-INTERVAL 1 DAY`);
+    FROM orders WHERE DATE(created_at)=CURDATE()-INTERVAL 1 DAY AND ${PAID_ONLY}`);
   const [[month]] = await pool.query(`
     SELECT COUNT(*) AS orders, COALESCE(SUM(CASE WHEN status<>'cancelled' THEN total END),0) AS revenue
-    FROM orders WHERE YEAR(created_at)=YEAR(CURDATE()) AND MONTH(created_at)=MONTH(CURDATE())`);
-  const [recent] = await pool.query('SELECT * FROM orders ORDER BY created_at DESC LIMIT 12');
+    FROM orders WHERE YEAR(created_at)=YEAR(CURDATE()) AND MONTH(created_at)=MONTH(CURDATE()) AND ${PAID_ONLY}`);
+  const [recent] = await pool.query(`SELECT * FROM orders WHERE ${PAID_ONLY} ORDER BY created_at DESC LIMIT 12`);
   const [lowStock] = await pool.query(
     'SELECT id,name,stock,low_stock_at,image FROM products WHERE stock<=low_stock_at ORDER BY stock ASC LIMIT 20');
   const [topToday] = await pool.query(`
     SELECT p.name, p.image, SUM(j.qty) AS sold FROM orders o
     JOIN JSON_TABLE(o.items,'$[*]' COLUMNS (pid VARCHAR(36) PATH '$.id', qty INT PATH '$.qty')) j ON 1=1
     JOIN products p ON p.id = j.pid COLLATE utf8mb4_unicode_ci
-    WHERE DATE(o.created_at)=CURDATE() AND o.status<>'cancelled'
+    WHERE DATE(o.created_at)=CURDATE() AND o.status<>'cancelled' AND ${PAID_ONLY}
     GROUP BY p.id, p.name, p.image ORDER BY sold DESC LIMIT 5`);
   const [[unread]] = await pool.query('SELECT COUNT(*) AS n FROM notifications WHERE is_read=0');
   const [[customers]] = await pool.query("SELECT COUNT(*) AS n FROM users WHERE role='customer'");
@@ -48,23 +52,23 @@ router.get('/analytics', wrap(async (req, res) => {
   const [daily] = await pool.query(`
     SELECT DATE(created_at) AS day, COUNT(*) AS orders,
       COALESCE(SUM(CASE WHEN status<>'cancelled' THEN total END),0) AS revenue
-    FROM orders WHERE created_at >= CURDATE()-INTERVAL ? DAY GROUP BY day ORDER BY day`, [days]);
+    FROM orders WHERE created_at >= CURDATE()-INTERVAL ? DAY AND ${PAID_ONLY} GROUP BY day ORDER BY day`, [days]);
   const [topProducts] = await pool.query(`
     SELECT p.id,p.name,p.image,SUM(j.qty) AS sold, SUM(j.qty*j.price) AS revenue FROM orders o
     JOIN JSON_TABLE(o.items,'$[*]' COLUMNS (pid VARCHAR(36) PATH '$.id', qty INT PATH '$.qty', price DECIMAL(10,2) PATH '$.price')) j ON 1=1
     JOIN products p ON p.id = j.pid COLLATE utf8mb4_unicode_ci
-    WHERE o.created_at >= CURDATE()-INTERVAL ? DAY AND o.status<>'cancelled'
+    WHERE o.created_at >= CURDATE()-INTERVAL ? DAY AND o.status<>'cancelled' AND ${PAID_ONLY}
     GROUP BY p.id, p.name, p.image ORDER BY sold DESC LIMIT 10`, [days]);
   const [leastProducts] = await pool.query('SELECT id,name,image,total_sold FROM products ORDER BY total_sold ASC LIMIT 10');
   const [byCategory] = await pool.query(`
     SELECT p.category, SUM(j.qty) AS sold, SUM(j.qty*j.price) AS revenue FROM orders o
     JOIN JSON_TABLE(o.items,'$[*]' COLUMNS (pid VARCHAR(36) PATH '$.id', qty INT PATH '$.qty', price DECIMAL(10,2) PATH '$.price')) j ON 1=1
     JOIN products p ON p.id = j.pid COLLATE utf8mb4_unicode_ci
-    WHERE o.created_at >= CURDATE()-INTERVAL ? DAY AND o.status<>'cancelled'
+    WHERE o.created_at >= CURDATE()-INTERVAL ? DAY AND o.status<>'cancelled' AND ${PAID_ONLY}
     GROUP BY p.category ORDER BY revenue DESC`, [days]);
   const [[rev]] = await pool.query(`
     SELECT COALESCE(SUM(CASE WHEN status<>'cancelled' THEN total END),0) AS revenue, COUNT(*) AS orders
-    FROM orders WHERE created_at >= CURDATE()-INTERVAL ? DAY`, [days]);
+    FROM orders WHERE created_at >= CURDATE()-INTERVAL ? DAY AND ${PAID_ONLY}`, [days]);
   const [[exp]] = await pool.query(
     'SELECT COALESCE(SUM(amount),0) AS expenses FROM expenses WHERE spent_on >= CURDATE()-INTERVAL ? DAY', [days]);
   ok(res, { days, daily, top_products: topProducts, least_products: leastProducts, by_category: byCategory,
@@ -75,7 +79,7 @@ router.get('/analytics', wrap(async (req, res) => {
 
 router.get('/customers', wrap(async (req, res) => {
   const { search, date, from, to } = req.query;
-  const where = [], args = [];
+  const where = ["(o.payment_status IN ('paid','refunded') OR o.payment_method<>'online')"], args = [];
   if (search) { where.push('(o.customer_name LIKE ? OR o.customer_phone LIKE ?)'); args.push(`%${search}%`, `%${search}%`); }
   // Date filter = customers who ordered within the selected period
   if (from && to) { where.push('DATE(o.created_at) BETWEEN ? AND ?'); args.push(from, to); }
