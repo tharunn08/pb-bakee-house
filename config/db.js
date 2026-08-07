@@ -8,8 +8,23 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'pb_bake_house',
   waitForConnections: true,
-  connectionLimit: 10,
+  // Raised from 10 -> configurable (default 25). At ~500 members browsing/
+  // ordering, most requests are short SELECTs that finish in a few ms, so a
+  // pool this size comfortably serves that traffic without exhausting the
+  // DB server's own max_connections (shared MySQL on Hostinger is typically
+  // capped around 50-100 per database). Override with DB_POOL_LIMIT if your
+  // plan allows more, or you see "Too many connections" during a load spike.
+  connectionLimit: parseInt(process.env.DB_POOL_LIMIT, 10) || 25,
+  // Requests wait in a queue instead of failing outright when every
+  // connection is briefly busy (e.g. a burst of orders at once).
   queueLimit: 0,
+  // Kill a query that hangs instead of holding a pool slot forever and
+  // slowly starving every other request behind it.
+  connectTimeout: 10000,
+  // Keeps idle connections alive through shared-hosting NAT/proxy timeouts
+  // so the pool doesn't silently degrade to reconnecting on every request.
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
   // Use the FULL collation name (not just 'utf8mb4', which silently defaults to
   // utf8mb4_general_ci and clashes with our utf8mb4_unicode_ci tables ->
   // "Illegal mix of collations" on every string comparison / JOIN).
