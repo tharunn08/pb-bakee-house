@@ -892,12 +892,22 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .sum-row.total{font-size:16px;font-weight:600;color:var(--ink);border-top:1px solid var(--line);margin-top:12px;padding-top:14px}
 .sum-row.total b{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--primary)}
 
+/* Outlined box grouping the coupon badge + input + error together, so the
+   whole coupon area reads as one clearly-bordered card inside the order
+   summary panel — matching the reference design. */
+.coupon-box{
+  margin-top:16px;padding:16px;border-radius:var(--r);
+  border:1.5px solid var(--line);background:var(--surface);
+}
+.coupon-box .field{margin-bottom:0}
+.coupon-box .field label{margin-bottom:10px}
+
 /* Coupon badge (checkout order summary) — advertises the active coupon
    before it's applied, and confirms it once applied (same look either way,
    matching the reference design). */
 .coupon-badge{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin:10px 0;padding:10px 14px;border-radius:var(--r-sm);
+  margin:0 0 14px;padding:10px 14px;border-radius:var(--r-sm);
   background:var(--forest-soft);border:1.5px dashed var(--ok);
 }
 .coupon-badge b{font-family:var(--font-display);font-size:14px;color:var(--forest);letter-spacing:.3px}
