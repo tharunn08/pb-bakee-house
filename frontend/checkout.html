@@ -110,14 +110,16 @@
         <div id="freeHint"></div>
         <div id="sumItems"></div>
         <div id="sumTotals" style="margin-top:14px"></div>
-        <div id="couponBadge"></div>
-        <div class="field" style="margin-top:14px" id="couponField">
-          <label for="fCoupon">Coupon code</label>
-          <div style="display:flex;gap:8px">
-            <input id="fCoupon" placeholder="Enter a code" style="text-transform:uppercase">
-            <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
+        <div class="coupon-box">
+          <div id="couponBadge"></div>
+          <div class="field" id="couponField">
+            <label for="fCoupon">Coupon code</label>
+            <div style="display:flex;gap:8px">
+              <input id="fCoupon" placeholder="Enter a code" style="text-transform:uppercase">
+              <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
+            </div>
+            <div class="err-msg" id="eCoupon"></div>
           </div>
-          <div class="err-msg" id="eCoupon"></div>
         </div>
         <button class="btn btn-red btn-block" id="placeBtn" style="margin-top:16px" onclick="placeOrder()">Pay and place order</button>
         <p style="font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:10px">You'll get an email confirmation and live status updates.</p>
