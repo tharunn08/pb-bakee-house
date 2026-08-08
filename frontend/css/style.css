@@ -493,10 +493,10 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 
 /* ---------- 9. HERO BANNER — THE ARCH (signature) ---------- */
 .hero-banner{
-  position:relative;width:100%;aspect-ratio:4/4.1;max-width:360px;max-height:min(400px,60vh);
+  position:relative;width:100%;aspect-ratio:4/4.1;max-width:395px;max-height:min(435px,62vh);
   /* Sits a little higher and a little left of dead-centre in its column,
      instead of being vertically centred against the taller text column. */
-  align-self:flex-start;margin-top:-18px;margin-left:auto;margin-right:52px;
+  align-self:flex-start;margin-top:-4px;margin-left:auto;margin-right:70px;
   border-radius:230px 230px var(--r-lg) var(--r-lg);
   overflow:hidden;background:linear-gradient(150deg,var(--cream),var(--primary-soft));
   box-shadow:var(--shadow-lg),inset 0 0 0 1px rgba(212,175,55,.35);
@@ -670,7 +670,8 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 
 .card-img{
   position:relative;display:grid;place-items:center;overflow:hidden;
-  aspect-ratio:7/5;background:var(--cream);border-radius:var(--r-lg) var(--r-lg) 0 0;
+  aspect-ratio:3/2;max-height:min(210px,27vh);
+  background:var(--cream);border-radius:var(--r-lg) var(--r-lg) 0 0;
 }
 .card-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease)}
 .card:hover .card-img img{transform:scale(1.08)}
@@ -716,7 +717,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .wish.on{opacity:1;transform:none;color:var(--wine)}
 .card-img .tag.veg~.wish{top:56px}
 
-.card-body{padding:12px 13px 13px;display:flex;flex-direction:column;flex:1;gap:3px;position:relative;z-index:2}
+.card-body{padding:10px 12px 11px;display:flex;flex-direction:column;flex:1;gap:2px;position:relative;z-index:2}
 .card-cat{font-size:9.5px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-deep)}
 .card-name{
   font-family:var(--font-display);font-size:16.5px;font-weight:800;line-height:1.22;
@@ -744,7 +745,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 
 .card-foot{margin-top:auto;padding-top:10px}
 .card-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.card-btns .btn{padding:10px 8px;font-size:12.5px;min-height:37px;border-radius:100px}
+.card-btns .btn{padding:9px 8px;font-size:12.5px;min-height:35px;border-radius:100px}
 
 .qty{
   display:inline-flex;align-items:center;margin-top:10px;
@@ -1005,20 +1006,20 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}}
 
 /* ---------- 21. COUPON STRIP ---------- */
-.coupon-strip{margin-bottom:12px}
-.coupon-head{font-family:var(--font-display);font-size:14.5px;font-weight:800;margin-bottom:8px;color:var(--ink)}
-.coupon-cards{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.coupon-strip{margin-bottom:8px}
+.coupon-head{font-family:var(--font-display);font-size:13px;font-weight:800;margin-bottom:5px;color:var(--ink)}
+.coupon-cards{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .coupon-cards::-webkit-scrollbar{display:none}
 .coupon-card{
-  flex-shrink:0;min-width:260px;display:flex;align-items:stretch;cursor:pointer;
+  flex-shrink:0;min-width:250px;display:flex;align-items:stretch;cursor:pointer;
   border-radius:var(--r);overflow:hidden;
   background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-xs);
   transition:transform .4s var(--ease),box-shadow .4s,border-color .35s;
 }
 .coupon-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-md);border-color:var(--gold)}
-.coupon-left{flex:1;padding:11px 16px;background:linear-gradient(135deg,var(--cream),var(--surface))}
-.coupon-val{font-family:var(--font-display);font-size:17px;font-weight:800;color:var(--primary)}
-.coupon-cond{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.coupon-left{flex:1;padding:8px 14px;background:linear-gradient(135deg,var(--cream),var(--surface))}
+.coupon-val{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--primary)}
+.coupon-cond{font-size:10.5px;color:var(--ink-faint);margin-top:1px}
 .coupon-code{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:0 15px;position:relative;
@@ -2132,23 +2133,23 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
   color:var(--gold-deep);margin-bottom:2px;
 }
 .card-name{
-  font-family:var(--font-display);font-size:15.5px;font-weight:800;
-  letter-spacing:-.022em;line-height:1.22;color:var(--ink);margin-top:1px;
+  font-family:var(--font-display);font-size:14.5px;font-weight:800;
+  letter-spacing:-.022em;line-height:1.2;color:var(--ink);margin-top:1px;
   display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;
   transition:color .3s;
 }
 .card:hover .card-name{color:var(--primary)}
-.card-meta{font-size:11.5px;color:var(--ink-faint);margin-bottom:0}
-.card .price{font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:-.03em}
+.card-meta{font-size:11px;color:var(--ink-faint);margin-bottom:0}
+.card .price{font-family:var(--font-display);font-size:16.5px;font-weight:800;letter-spacing:-.03em}
 /* Push the buttons to the bottom so every card lines up */
-.card-foot{margin-top:auto;padding-top:7px}
+.card-foot{margin-top:auto;padding-top:6px}
 .card-btns{display:grid;grid-template-columns:1.35fr 1fr;gap:7px}
 .btn-cart{
-  padding:10px 14px;font-size:13px;border-radius:100px;letter-spacing:.01em;min-height:37px;
+  padding:9px 14px;font-size:12.5px;border-radius:100px;letter-spacing:.01em;min-height:35px;
   box-shadow:0 5px 16px -6px rgba(139,69,19,.55);
 }
 .btn-cart:hover{box-shadow:0 12px 26px -8px rgba(139,69,19,.6)}
-.btn-buy{padding:10px 12px;font-size:12.5px;border-radius:100px;min-height:37px}
+.btn-buy{padding:9px 12px;font-size:12px;border-radius:100px;min-height:35px}
 
 /* ---------- IMAGE REVEAL ---------- */
 /* Images fade up from a soft blur as they enter — the "expensive" feel comes
