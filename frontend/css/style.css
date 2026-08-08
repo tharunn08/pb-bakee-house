@@ -638,7 +638,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
    row finish at the same height regardless of name length or badge count. */
 .grid{
   display:grid;gap:clamp(14px,1.5vw,22px);align-items:stretch;
-  grid-template-columns:repeat(auto-fill,minmax(214px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(196px,1fr));
 }
 .card{
   position:relative;display:flex;flex-direction:column;overflow:hidden;
@@ -1474,11 +1474,24 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
   transition:color .3s,transform .4s var(--spring);
 }
 .search-wrap input:focus~.si{color:var(--gold-deep);transform:translateY(-50%) scale(1.14)}
+.sort-wrap{position:relative;display:inline-flex}
 .sort-wrap select{
-  padding:14px 20px;border-radius:100px;border:1.5px solid var(--line);
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  padding:14px 44px 14px 20px;border-radius:100px;border:1.5px solid var(--line);
   background:var(--surface);outline:none;font-size:14px;cursor:pointer;
+  width:100%;text-overflow:ellipsis;
   transition:border-color .3s,box-shadow .3s;
 }
+.sort-wrap select::-ms-expand{display:none}
+/* Drawn from borders rather than a background image so it inherits the ink
+   colour and stays crisp in both themes. */
+.sort-wrap::after{
+  content:'';position:absolute;right:20px;top:50%;width:7px;height:7px;
+  border-right:2px solid var(--ink-soft);border-bottom:2px solid var(--ink-soft);
+  transform:translateY(-70%) rotate(45deg);pointer-events:none;
+  transition:border-color .3s;
+}
+.sort-wrap:hover::after{border-color:var(--primary)}
 .sort-wrap select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.16)}
 
 /* ---------- 33. AUTH PAGES ---------- */
@@ -2292,10 +2305,16 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .filters .coupon-head::after{
   content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);
 }
-/* Stack them down the rail instead of scrolling sideways in a 262px column. */
+/* Stack them down the rail instead of scrolling sideways in a narrow column.
+   min-width:0 is the important part - without it the flex child refuses to
+   shrink below 220px and the code block gets pushed past the card's edge,
+   clipping the last letter of the coupon. */
 .filters .coupon-cards{flex-direction:column;overflow:visible;gap:8px}
-.filters .coupon-card{min-width:0;width:100%}
-.filters .coupon-left{padding:9px 12px}
+.filters .coupon-card{min-width:0;width:100%;flex-shrink:1}
+.filters .coupon-left{min-width:0;padding:9px 12px}
+.filters .coupon-val{font-size:13px}
+.filters .coupon-cond{overflow-wrap:anywhere}
+.filters .coupon-code{flex:0 0 auto;padding:0 13px;white-space:nowrap}
 .menu-section .active-filters{margin-bottom:14px}
 
 @media(max-width:960px){
@@ -2315,7 +2334,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
    left under the header, measured at runtime by fitFirstRow() in menu.html and
    published as --menu-img-h. The clamp below is the no-JS fallback and also
    sets the hard floor/ceiling the script is allowed to pick between. */
-.menu-section{--menu-img-h:clamp(200px,34vh,340px)}
+.menu-section{--menu-img-h:clamp(220px,38vh,380px)}
 .menu-section .card-img{
   height:var(--menu-img-h);
   aspect-ratio:auto;max-height:none;
