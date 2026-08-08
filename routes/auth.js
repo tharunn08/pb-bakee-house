@@ -28,6 +28,7 @@ router.post('/login', wrap(async (req, res) => {
   if (!u.is_active) return bad(res, 403, 'This account has been disabled');
   if (!(await bcrypt.compare(password, u.password))) return bad(res, 401, 'Invalid email or password');
   const user = { id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role };
+  await pool.query('UPDATE users SET last_login_at=NOW() WHERE id=?', [u.id]).catch(() => {});
   if (u.role !== 'customer') await audit(u.email, 'login', 'user', u.id);
   ok(res, { token: sign(user), user });
 }));
