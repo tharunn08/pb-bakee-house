@@ -311,6 +311,11 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .nav-links a.active{color:var(--primary);font-weight:600}
 
 .nav-actions{display:flex;align-items:center;gap:9px}
+/* Explicit order guarantee: Sign in / account first, cart in the middle,
+   hamburger last — independent of markup order, so this can never drift. */
+.nav-actions>.acct-wrap,.nav-actions>a.btn-primary{order:1}
+.nav-actions>.icon-btn:not(.hamburger){order:2}
+.nav-actions>.hamburger{order:3}
 .icon-btn{
   position:relative;width:46px;height:46px;border-radius:14px;
   border:1px solid var(--line);background:var(--surface);
@@ -391,8 +396,8 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .hero-copy{position:relative;z-index:2;max-width:680px}
 .hero{
   position:relative;overflow:hidden;
-  min-height:clamp(620px,88vh,940px);display:flex;align-items:center;
-  padding:clamp(100px,14vh,160px) 0 clamp(70px,10vh,130px);
+  min-height:clamp(540px,78vh,820px);display:flex;align-items:center;
+  padding:clamp(36px,5vh,64px) 0 clamp(40px,6vh,70px);
   background:
     radial-gradient(1100px 520px at 78% 12%,rgba(212,175,55,.14),transparent 60%),
     linear-gradient(168deg,var(--cream) 0%,var(--bg) 46%,#F7E9DA 100%);
@@ -478,7 +483,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 
 /* ---------- 9. HERO BANNER — THE ARCH (signature) ---------- */
 .hero-banner{
-  position:relative;width:100%;aspect-ratio:4/4.3;max-width:460px;max-height:min(560px,60vh);margin-left:auto;
+  position:relative;width:100%;aspect-ratio:4/4.1;max-width:400px;max-height:min(440px,52vh);margin-left:auto;
   border-radius:230px 230px var(--r-lg) var(--r-lg);
   overflow:hidden;background:linear-gradient(150deg,var(--cream),var(--primary-soft));
   box-shadow:var(--shadow-lg),inset 0 0 0 1px rgba(212,175,55,.35);
@@ -1455,10 +1460,10 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
   background:var(--glass-strong);backdrop-filter:blur(18px);
 }
 .auth-art{
-  position:relative;overflow:hidden;padding:56px 44px;
+  position:relative;overflow:hidden;padding:36px 40px;
   display:flex;flex-direction:column;justify-content:flex-end;
   background:linear-gradient(150deg,#4E342E,#2D1B12 60%,#8B4513 150%);
-  color:#FFF5E6;min-height:520px;
+  color:#FFF5E6;min-height:0;
 }
 .auth-art::before{
   content:'';position:absolute;top:-100px;right:-100px;width:340px;height:340px;border-radius:50%;
@@ -1474,13 +1479,14 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .auth-art ul{list-style:none;margin-top:26px;position:relative;z-index:1}
 .auth-art li{display:flex;align-items:center;gap:11px;font-size:13.5px;padding:7px 0;opacity:.9}
 .auth-art li::before{content:'';width:5px;height:5px;background:var(--gold);transform:rotate(45deg);flex-shrink:0}
-.auth-form{padding:52px 46px;display:flex;flex-direction:column;justify-content:center}
-.auth-form h2{font-family:var(--font-display);font-size:34px;font-weight:800;letter-spacing:-.032em;margin-bottom:6px}
-.auth-form .sub{color:var(--ink-faint);font-size:14px;margin-bottom:30px}
-.auth-alt{text-align:center;font-size:13.5px;margin-top:22px;color:var(--ink-soft)}
+.auth-form{padding:34px 46px;display:flex;flex-direction:column;justify-content:center}
+.auth-form h2{font-family:var(--font-display);font-size:28px;font-weight:800;letter-spacing:-.032em;margin-bottom:4px}
+.auth-form .sub{color:var(--ink-faint);font-size:13.5px;margin-bottom:18px}
+.auth-form .field{margin-bottom:12px}
+.auth-alt{text-align:center;font-size:13.5px;margin-top:14px;color:var(--ink-soft)}
 .auth-alt a{color:var(--primary);font-weight:600}
 .auth-divider{
-  display:flex;align-items:center;gap:14px;margin:26px 0;
+  display:flex;align-items:center;gap:14px;margin:16px 0;
   font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);
 }
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--line)}
@@ -1906,6 +1912,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 }
 
 /* ---------- ACTIVE FILTER CHIPS ---------- */
+.active-filters[hidden]{display:none}
 .active-filters{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
 .afilter{
   display:inline-flex;align-items:center;gap:9px;cursor:pointer;
