@@ -35,11 +35,11 @@
   </div>
 </div>
 
-<section class="section container">
+<section class="section container" style="padding-top:clamp(24px,4vh,48px)">
   <div class="section-head">
     <div>
       <span class="eyebrow">Freshly baked</span>
-      <h2>The <span>menu</span></h2>
+      <h2 id="menuTitle">The <span>menu</span></h2>
       <p id="resultCount">Loading products…</p>
     </div>
     <div style="display:flex;gap:11px;flex-wrap:wrap;align-items:center">
@@ -88,6 +88,9 @@
         <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
         <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
       </div>
+      <div style="text-align:center;margin-top:34px">
+        <button class="btn btn-outline" id="loadMoreBtn" style="display:none" onclick="loadMore()">Load more</button>
+      </div>
     </div>
   </div>
 </section>
@@ -124,8 +127,14 @@ function copyCoupon(code) {
 
 const params = new URLSearchParams(location.search);
 let state = { category: params.get('category') || 'all', search: params.get('search') || '',
-              occasion: params.get('occasion') || '', sort: 'new' };
+              occasion: params.get('occasion') || '', sort: 'new', favourites: params.get('favourites') === '1' };
 document.getElementById('searchBox').value = state.search;
+
+if (state.favourites) {
+  document.getElementById('menuTitle').innerHTML = 'Your <span>favourites</span>';
+  const searchWrap = document.getElementById('searchBox')?.closest('.search-wrap');
+  if (searchWrap) searchWrap.style.display = 'none';
+}
 
 api('/products/categories').then(({ categories }) => {
   const el = document.getElementById('catChips');
@@ -173,25 +182,83 @@ function dropFilter(key) {
   load();
 }
 
+/* Paginated: 24 products per page, "Load more" fetches the next page so the
+   first paint is fast even when the counter has hundreds of items. */
+const PAGE_SIZE = 24;
+let pageNum = 1, pageHasMore = false, loadingMore = false;
+
 async function load() {
+  pageNum = 1;
   const grid = document.getElementById('grid');
   grid.innerHTML = '<div class="skeleton"></div>'.repeat(6);
-  const q = new URLSearchParams({ limit: 100, sort: state.sort });
+  document.getElementById('loadMoreBtn').style.display = 'none';
+
+  if (state.favourites) return loadFavourites();
+
+  const q = new URLSearchParams({ limit: PAGE_SIZE, page: pageNum, sort: state.sort });
   if (state.category !== 'all') q.set('category', state.category);
   if (state.search) q.set('search', state.search);
   if (state.occasion) q.set('occasion', state.occasion);
   try {
-    const { products, total } = await api('/products?' + q);
+    const { products, total, pages } = await api('/products?' + q);
     lastProducts = products;
+    pageHasMore = pageNum < pages;
     document.getElementById('resultCount').textContent = total ? `${total} item${total === 1 ? '' : 's'} on the counter today` : 'Nothing matched that';
     paintActiveFilters();
     grid.innerHTML = products.length ? products.map(cardWithQuick).join('')
       : `<div class="empty" style="grid-column:1/-1"><div class="ei">&#128269;</div>
          <p>Nothing matched that search.<br>Try a broader word, or clear the filters.</p>
          <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="location.href='/menu.html'">Clear filters</button></div>`;
+    document.getElementById('loadMoreBtn').style.display = pageHasMore ? '' : 'none';
   } catch (e) {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>${esc(e.message)}</p>
       <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="load()">Try again</button></div>`;
+  }
+}
+
+async function loadMore() {
+  if (loadingMore || !pageHasMore) return;
+  loadingMore = true;
+  const btn = document.getElementById('loadMoreBtn');
+  btn.disabled = true; btn.textContent = 'Loading…';
+  pageNum += 1;
+  const q = new URLSearchParams({ limit: PAGE_SIZE, page: pageNum, sort: state.sort });
+  if (state.category !== 'all') q.set('category', state.category);
+  if (state.search) q.set('search', state.search);
+  if (state.occasion) q.set('occasion', state.occasion);
+  try {
+    const { products, pages } = await api('/products?' + q);
+    lastProducts = lastProducts.concat(products);
+    pageHasMore = pageNum < pages;
+    document.getElementById('grid').insertAdjacentHTML('beforeend', products.map(cardWithQuick).join(''));
+    btn.style.display = pageHasMore ? '' : 'none';
+  } catch (e) { toast(e.message, 'err'); pageNum -= 1; }
+  loadingMore = false;
+  btn.disabled = false; btn.textContent = 'Load more';
+}
+
+/* Favourites view — pulled from the browser-only wishlist (see UI.wish in
+   ui.js). We only need each saved product's live details, one request
+   per id, so a customer's saved list never depends on pagination order. */
+async function loadFavourites() {
+  const grid = document.getElementById('grid');
+  const ids = (window.UI ? UI.wish.read() : []);
+  document.getElementById('resultCount').textContent = ids.length ? `${ids.length} saved item${ids.length === 1 ? '' : 's'}` : 'No favourites yet';
+  document.getElementById('activeFilters').hidden = true;
+  if (!ids.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9825;</div>
+      <p>You haven't saved anything yet.<br>Tap the heart on any product to save it here.</p>
+      <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="location.href='/menu.html'">Browse the menu</button></div>`;
+    return;
+  }
+  try {
+    const results = await Promise.all(ids.map(id => api('/products/' + id).then(r => r.product).catch(() => null)));
+    const products = results.filter(Boolean);
+    lastProducts = products;
+    grid.innerHTML = products.length ? products.map(cardWithQuick).join('')
+      : `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9825;</div><p>Your saved items are no longer available.</p></div>`;
+  } catch (e) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>${esc(e.message)}</p></div>`;
   }
 }
 
