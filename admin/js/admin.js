@@ -644,20 +644,33 @@ RENDER.products = async function () {
     <div class="card"><div class="card-h">
       <div style="display:flex;gap:8px;align-items:center"><h3>Products</h3><input class="status-select" id="pSearch" placeholder="Filter by name" oninput="filterProducts(this.value)"></div>
       <button class="btn btn-primary" onclick="productModal()">+ Add Product</button>
-    </div><div class="card-b flush t-wrap" id="prodTable"><div class="empty">Loading…</div></div></div>`;
+    </div><div class="card-b flush t-wrap" id="prodTable"><div class="empty">Loading\u2026</div></div>
+    <div class="card-b" id="prodPager" style="display:flex;justify-content:center;gap:10px"></div></div>`;
+  prodFilter = { search: '', page: 1 };
   loadProducts();
 };
 let ALL_PRODUCTS = [];
+let prodFilter = { search: '', page: 1 };
+let prodSearchTimer;
+/* Server-side pagination (30 per page) keeps the admin product list fast
+   even with hundreds of items — only the current page is ever fetched. */
 async function loadProducts() {
   try {
-    const { products } = await api('/products?all=1&limit=200');
+    const p = new URLSearchParams({ all: 1, limit: 30, page: prodFilter.page });
+    if (prodFilter.search) p.set('search', prodFilter.search);
+    const { products, total, pages } = await api('/products?' + p);
     ALL_PRODUCTS = products;
     renderProducts(products);
+    const pager = document.getElementById('prodPager');
+    if (pager) pager.innerHTML = pages > 1 ? `
+      <button class="btn btn-outline btn-sm" ${prodFilter.page <= 1 ? 'disabled' : ''} onclick="prodFilter.page--;loadProducts()">\u2039 Prev</button>
+      <span style="align-self:center;font-size:12.5px;color:var(--ink-faint)">Page ${prodFilter.page} of ${pages} \u00b7 ${total} products</span>
+      <button class="btn btn-outline btn-sm" ${prodFilter.page >= pages ? 'disabled' : ''} onclick="prodFilter.page++;loadProducts()">Next \u203a</button>` : '';
   } catch (e) { document.getElementById('prodTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
 }
 function filterProducts(q) {
-  q = q.toLowerCase();
-  renderProducts(ALL_PRODUCTS.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)));
+  clearTimeout(prodSearchTimer);
+  prodSearchTimer = setTimeout(() => { prodFilter.search = q; prodFilter.page = 1; loadProducts(); }, 350);
 }
 function renderProducts(products) {
   document.getElementById('prodTable').innerHTML = `<table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Flags</th><th>Live</th><th>Actions</th></tr></thead><tbody>
@@ -798,9 +811,36 @@ RENDER.analytics = async function () {
 };
 
 /* ======================= CUSTOMERS ======================= */
+let custView = 'orders';
 RENDER.customers = async function () {
+  custView = 'orders';
+  paintCustomerView();
+};
+
+function paintCustomerView() {
   const c = document.getElementById('content');
-  c.innerHTML = `
+  const tabs = `<div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn ${custView === 'orders' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="switchCustView('orders')">Ordered customers</button>
+      <button class="btn ${custView === 'registered' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="switchCustView('registered')">Registered accounts</button>
+    </div>`;
+  if (custView === 'registered') {
+    c.innerHTML = `${tabs}
+      <div class="card">
+        <div class="card-h"><h3>Registered accounts</h3>
+          <button class="btn btn-ghost btn-sm" onclick="loadRegisteredUsers()">\u21bb Refresh</button></div>
+        <div class="card-b" style="padding-bottom:0">
+          <p style="font-size:12.5px;color:var(--ink-faint);margin-bottom:10px">Everyone with an account \u2014 including people who signed up but haven't ordered yet. Useful for marketing (new-bake alerts, offers, win-back messages).</p>
+          <input class="status-select" id="regSearch" placeholder="Search name / email / phone"
+                 style="width:100%;margin-bottom:12px" oninput="debouncedReg()">
+        </div>
+        <div class="card-b flush t-wrap" id="regTable"><div class="empty">Loading\u2026</div></div>
+        <div class="card-b" id="regPager" style="display:flex;justify-content:center;gap:10px"></div>
+      </div>`;
+    regFilter = { search: '', page: 1 };
+    loadRegisteredUsers();
+    return;
+  }
+  c.innerHTML = `${tabs}
     <div class="card">
       <div class="card-h"><h3>Customers</h3>
         <button class="btn btn-ghost btn-sm" onclick="loadCustomers()">\u21bb Refresh</button></div>
@@ -810,12 +850,43 @@ RENDER.customers = async function () {
                style="width:100%;margin:12px 0" oninput="custFilter.search=this.value;debouncedCust()">
         <div id="custSummary"></div>
       </div>
-      <div class="card-b flush t-wrap" id="custTable"><div class="empty">Loading…</div></div>
+      <div class="card-b flush t-wrap" id="custTable"><div class="empty">Loading\u2026</div></div>
     </div>`;
   custFilter = { search: '', date: 'all', from: '', to: '' };
   setTimeout(() => setPresetActive('all'), 20);
   loadCustomers();
-};
+}
+function switchCustView(v) { custView = v; paintCustomerView(); }
+
+/* ---- Registered accounts: paginated straight from the users table ---- */
+let regFilter = { search: '', page: 1 };
+let regTimer;
+function debouncedReg() {
+  clearTimeout(regTimer);
+  regTimer = setTimeout(() => { regFilter.search = document.getElementById('regSearch').value; regFilter.page = 1; loadRegisteredUsers(); }, 350);
+}
+async function loadRegisteredUsers() {
+  try {
+    const p = new URLSearchParams({ page: regFilter.page, limit: 25 });
+    if (regFilter.search) p.set('search', regFilter.search);
+    const { users, total, pages } = await api('/admin/registered-users?' + p);
+    document.getElementById('regTable').innerHTML = `<table><thead><tr>
+      <th>Name</th><th>Contact</th><th>Location</th><th>Registered</th><th>Last login</th><th>Status</th></tr></thead><tbody>
+      ${users.length ? users.map(u => `<tr>
+        <td><b>${esc(u.name)}</b></td>
+        <td>${u.email ? `<span style="font-size:12.5px">${esc(u.email)}</span><br>` : ''}${u.phone ? `<a href="tel:${esc(u.phone)}" style="color:var(--blue)">\ud83d\udcde ${esc(u.phone)}</a>` : ''}</td>
+        <td style="font-size:12.5px;color:var(--ink-soft)">${esc([u.city, u.pincode].filter(Boolean).join(', ') || '\u2014')}</td>
+        <td style="font-size:12.5px;color:var(--ink-faint)">${u.created_at ? fmtDate(u.created_at) : '-'}</td>
+        <td style="font-size:12.5px;color:var(--ink-faint)">${u.last_login_at ? fmtDate(u.last_login_at) : 'Never'}</td>
+        <td>${u.is_active ? '<span class="badge-ok">Active</span>' : '<span class="badge-off">Disabled</span>'}</td>
+      </tr>`).join('') : '<tr><td colspan="6"><div class="empty">No registered accounts yet</div></td></tr>'}
+      </tbody></table>`;
+    document.getElementById('regPager').innerHTML = pages > 1 ? `
+      <button class="btn btn-outline btn-sm" ${regFilter.page <= 1 ? 'disabled' : ''} onclick="regFilter.page--;loadRegisteredUsers()">\u2039 Prev</button>
+      <span style="align-self:center;font-size:12.5px;color:var(--ink-faint)">Page ${regFilter.page} of ${pages} \u00b7 ${total} accounts</span>
+      <button class="btn btn-outline btn-sm" ${regFilter.page >= pages ? 'disabled' : ''} onclick="regFilter.page++;loadRegisteredUsers()">Next \u203a</button>` : '';
+  } catch (e) { document.getElementById('regTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
 
 let custFilter = { search: '', date: 'all', from: '', to: '' };
 function setCustDate(v) {

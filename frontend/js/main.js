@@ -230,9 +230,6 @@ function mountShell(active = '') {
         <a href="/about.html" class="${active === 'about' ? 'active' : ''}">About</a>
       </div>
       <div class="nav-actions">
-        <button class="icon-btn hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
         <button class="icon-btn" onclick="toggleCart(true)" title="Cart" aria-label="Open cart">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <span class="badge hide" id="cartCount">0</span>
@@ -249,6 +246,9 @@ function mountShell(active = '') {
           </div>
         </div>`
                : `<a href="/login.html" class="btn btn-primary btn-sm" style="min-height:44px">Sign in</a>`}
+        <button class="icon-btn hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
       </div>
     </div>
   </nav>
