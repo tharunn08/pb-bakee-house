@@ -389,7 +389,7 @@ Promise.all([
     const art = CAT_FIXED[key] || pool[Math.floor(Math.random() * pool.length)] || '';
     return `
     <a href="/menu.html?category=${encodeURIComponent(c.name)}" class="cat-card${art ? '' : ' cat-plain'}" data-cat-key="${esc(key)}">
-      ${art ? `<img src="${esc(art)}" alt="${esc(c.name)}" loading="lazy">` : ''}
+      ${art ? `<img src="${esc(art)}" alt="${esc(c.name)}">` : ''}
       <div class="cat-meta">
         <b>${esc(c.name)}</b>
         <span>${c.count} item${c.count === 1 ? '' : 's'}</span>

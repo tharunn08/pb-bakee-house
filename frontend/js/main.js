@@ -82,7 +82,7 @@ const Auth = {
 };
 
 function productImage(p) {
-  if (p.image) return `<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML=placeholderHTML()">`;
+  if (p.image) return `<img src="${esc(p.image)}" alt="${esc(p.name)}" onerror="this.parentElement.innerHTML=placeholderHTML()">`;
   return placeholderHTML();
 }
 function placeholderHTML() {
