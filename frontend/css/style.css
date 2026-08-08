@@ -638,7 +638,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
    row finish at the same height regardless of name length or badge count. */
 .grid{
   display:grid;gap:clamp(14px,1.5vw,22px);align-items:stretch;
-  grid-template-columns:repeat(auto-fill,minmax(196px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
 }
 .card{
   position:relative;display:flex;flex-direction:column;overflow:hidden;
@@ -672,7 +672,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
    and the height cap is generous enough that nothing important is sliced off. */
 .card-img{
   position:relative;display:grid;place-items:center;overflow:hidden;
-  aspect-ratio:1/1;max-height:min(300px,36vh);
+  aspect-ratio:4/4.6;max-height:min(360px,46vh);
   background:var(--cream);border-radius:var(--r-lg) var(--r-lg) 0 0;
 }
 .card-img img{
@@ -2348,4 +2348,13 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 @media(max-width:640px){
   .menu-section{--menu-img-h:clamp(150px,26vh,250px)}
   .menu-section .skeleton{height:calc(var(--menu-img-h) + 138px)}
+}
+
+/* ---------- 38. MENU GRID DENSITY ---------- */
+/* Only the menu wants the narrower, denser column - it is a browse-everything
+   page. Home, product and related grids keep the wider card they already had;
+   there only the height was asked to change. */
+.menu-section .grid{grid-template-columns:repeat(auto-fill,minmax(196px,1fr))}
+@media(max-width:960px){
+  .menu-section .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
