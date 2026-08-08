@@ -203,6 +203,17 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('acctMenu')?.classList.remove('show'); });
 
+/* Mobile nav dropdown — tapping anywhere outside the open menu (or its
+   hamburger toggle) closes it, same as the account menu above. */
+document.addEventListener('click', e => {
+  const links = document.getElementById('navLinks');
+  if (!links || !links.classList.contains('open')) return;
+  const toggle = e.target.closest('.hamburger');
+  if (links.contains(e.target) || toggle) return;
+  links.classList.remove('open');
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('navLinks')?.classList.remove('open'); });
+
 function toggleCart(open) {
   const d = document.getElementById('cartDrawer');
   const o = document.getElementById('overlay');
