@@ -288,6 +288,10 @@ const COLUMNS = [
   // can check the signature belongs to THIS order and not a replayed one.
   { table: 'orders', column: 'razorpay_order_id',
     ddl: "ALTER TABLE orders ADD COLUMN razorpay_order_id VARCHAR(64) DEFAULT ''" },
+  // Tracks when a customer account last signed in — powers the Registered
+  // Accounts view in Admin -> Customers, used for marketing outreach.
+  { table: 'users', column: 'last_login_at',
+    ddl: "ALTER TABLE users ADD COLUMN last_login_at DATETIME NULL" },
 ];
 
 async function columnExists(table, column) {
