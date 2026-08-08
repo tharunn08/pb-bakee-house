@@ -22,7 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="/images/logo.png">
 <link rel="apple-touch-icon" href="/images/logo.png">
-<link rel="stylesheet" href="/css/style.css?v=20260808m">
+<link rel="stylesheet" href="/css/style.css?v=20260808p">
 <script src="/js/ui.js"></script>
 </head>
 <body>
@@ -132,9 +132,9 @@ function copyCoupon(code) {
    moves depending on whether the offers strip or filter chips are showing)
    and give the photo whatever is left, inside sane limits.                  */
 /* The floor matters as much as the ceiling: a wide, short photo looks like a
-   banner, not a product. On desktop the photo never drops below 200px. */
-const IMG_MAX = 340, FOLD_GAP = 14;
-const imgMin = () => (window.innerWidth <= 640 ? 150 : 200);
+   banner, not a product. On desktop the photo never drops below 220px. */
+const IMG_MAX = 380, FOLD_GAP = 14;
+const imgMin = () => (window.innerWidth <= 640 ? 160 : 220);
 
 function fitFirstRow() {
   const section = document.querySelector('.menu-section');
