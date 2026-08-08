@@ -58,10 +58,9 @@
     </div>
   </header>
 
-  <div id="couponStrip" class="coupon-strip hide"></div>
-
   <div class="menu-layout">
     <aside class="filters">
+      <div id="couponStrip" class="coupon-strip filter-group hide"></div>
       <div class="filter-group">
         <h4>Categories</h4>
         <div class="filter-list" id="catChips"></div>
@@ -132,7 +131,10 @@ function copyCoupon(code) {
    only lever is the photo. We measure where the grid actually starts (which
    moves depending on whether the offers strip or filter chips are showing)
    and give the photo whatever is left, inside sane limits.                  */
-const IMG_MIN = 132, IMG_MAX = 300, FOLD_GAP = 14;
+/* The floor matters as much as the ceiling: a wide, short photo looks like a
+   banner, not a product. On desktop the photo never drops below 200px. */
+const IMG_MAX = 340, FOLD_GAP = 14;
+const imgMin = () => (window.innerWidth <= 640 ? 150 : 200);
 
 function fitFirstRow() {
   const section = document.querySelector('.menu-section');
@@ -153,7 +155,7 @@ function fitFirstRow() {
     : (window.innerWidth <= 640 ? 138 : 152);
 
   const room = window.innerHeight - top - bodyH - FOLD_GAP;
-  const px = Math.max(IMG_MIN, Math.min(IMG_MAX, Math.floor(room)));
+  const px = Math.max(imgMin(), Math.min(IMG_MAX, Math.floor(room)));
   section.style.setProperty('--menu-img-h', px + 'px');
 }
 
