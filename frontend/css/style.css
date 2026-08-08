@@ -860,11 +860,20 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .err-msg{color:var(--wine);font-size:11.5px;font-weight:500;margin-top:6px;min-height:15px}
 
 .pw-toggle{
-  position:absolute;right:14px;top:38px;width:32px;height:32px;border-radius:9px;
+  /* Anchored to the BOTTOM of .field (which always equals the bottom of the
+     password input, whatever the label above it looks like) instead of a
+     fixed distance from the top. That keeps it centred on the input itself
+     across every field style on the site, rather than drifting off the
+     input whenever a label's font-size/margin changes. */
+  position:absolute;right:14px;bottom:9px;width:32px;height:32px;border-radius:9px;
   border:none;background:transparent;cursor:pointer;display:grid;place-items:center;
   font-size:15px;color:var(--ink-faint);transition:color .25s,background .25s;
 }
 .pw-toggle:hover{color:var(--primary);background:var(--cream)}
+/* The auth (login/register) fields are shorter, so the toggle needs to be
+   smaller and sit closer to the bottom edge to stay centred and inside
+   the input instead of poking out above it. */
+.auth-form .pw-toggle{right:10px;bottom:4px;width:24px;height:24px;font-size:12.5px}
 
 /* ---------- 17. QUOTE / RULE STRIP ---------- */
 .quote-box{
