@@ -637,8 +637,8 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 /* align-items:stretch plus a flex column body is what makes every card in a
    row finish at the same height regardless of name length or badge count. */
 .grid{
-  display:grid;gap:clamp(16px,1.7vw,26px);align-items:stretch;
-  grid-template-columns:repeat(auto-fill,minmax(268px,1fr));
+  display:grid;gap:clamp(14px,1.5vw,22px);align-items:stretch;
+  grid-template-columns:repeat(auto-fill,minmax(214px,1fr));
 }
 .card{
   position:relative;display:flex;flex-direction:column;overflow:hidden;
@@ -1442,10 +1442,10 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .qv-close:hover{background:var(--gold);color:var(--dark);transform:rotate(90deg)}
 
 /* ---------- 32. MENU FILTERS ---------- */
-.menu-layout{display:grid;grid-template-columns:262px 1fr;gap:34px;align-items:start}
+.menu-layout{display:grid;grid-template-columns:244px 1fr;gap:28px;align-items:start}
 .filters{
   position:sticky;top:calc(var(--nav-h) + 18px);
-  padding:26px 24px;border-radius:var(--r-lg);
+  padding:22px 20px;border-radius:var(--r-lg);
   background:var(--glass-strong);backdrop-filter:blur(14px);
   border:1px solid var(--line);box-shadow:var(--shadow-xs);
 }
@@ -1548,7 +1548,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
   .hero-grid{gap:38px}
   .footer-grid{grid-template-columns:1.5fr 1fr 1.3fr;gap:36px}
   .footer-grid>div:nth-child(3){display:none}
-  .menu-layout{grid-template-columns:224px 1fr;gap:26px}
+  .menu-layout{grid-template-columns:214px 1fr;gap:22px}
 }
 @media(max-width:960px){
   :root{--nav-h:80px}
@@ -2245,7 +2245,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
    starts as high up the page as possible while still reading as a proper
    page masthead rather than three stacked scraps of text. */
 .menu-section{
-  padding-top:clamp(6px,0.9vw,14px);
+  padding-top:clamp(12px,1.3vw,20px);
   padding-bottom:clamp(48px,7vw,96px);
 }
 .menu-head{
@@ -2279,15 +2279,23 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 .menu-head-tools .search-wrap input{padding:11px 16px 11px 42px;font-size:13.5px}
 .menu-head-tools .search-wrap .si{left:16px;font-size:14px}
 
-/* Offers sit just under the header as one slim band. */
-.menu-section .coupon-strip{margin:0 0 16px}
-.menu-section .coupon-head{
-  font-family:var(--font-body);font-size:10px;font-weight:700;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);
-  margin-bottom:8px;
+/* Offers moved into the sidebar. That single change is what lets the product
+   grid start level with the search row instead of a full band below it, and
+   coupons read better here anyway - they sit with the other browse controls. */
+.filters .coupon-strip{margin:0 0 26px}
+.filters .coupon-strip.hide{display:none}
+.filters .coupon-head{
+  font-family:var(--font-display);font-size:15px;font-weight:800;
+  letter-spacing:0;text-transform:none;color:var(--ink);
+  margin-bottom:12px;display:flex;align-items:center;gap:11px;
 }
-.menu-section .coupon-card{min-width:232px}
-.menu-section .coupon-left{padding:9px 13px}
+.filters .coupon-head::after{
+  content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);
+}
+/* Stack them down the rail instead of scrolling sideways in a 262px column. */
+.filters .coupon-cards{flex-direction:column;overflow:visible;gap:8px}
+.filters .coupon-card{min-width:0;width:100%}
+.filters .coupon-left{padding:9px 12px}
 .menu-section .active-filters{margin-bottom:14px}
 
 @media(max-width:960px){
@@ -2307,7 +2315,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
    left under the header, measured at runtime by fitFirstRow() in menu.html and
    published as --menu-img-h. The clamp below is the no-JS fallback and also
    sets the hard floor/ceiling the script is allowed to pick between. */
-.menu-section{--menu-img-h:clamp(150px,26vh,300px)}
+.menu-section{--menu-img-h:clamp(200px,34vh,340px)}
 .menu-section .card-img{
   height:var(--menu-img-h);
   aspect-ratio:auto;max-height:none;
@@ -2319,6 +2327,6 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 /* On phones the first row is two cards side by side, so the photo can stay
    generous - the script still trims it if the fold demands it. */
 @media(max-width:640px){
-  .menu-section{--menu-img-h:clamp(130px,24vh,240px)}
+  .menu-section{--menu-img-h:clamp(150px,26vh,250px)}
   .menu-section .skeleton{height:calc(var(--menu-img-h) + 138px)}
 }
