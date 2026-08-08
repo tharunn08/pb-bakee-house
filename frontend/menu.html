@@ -22,7 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="/images/logo.png">
 <link rel="apple-touch-icon" href="/images/logo.png">
-<link rel="stylesheet" href="/css/style.css?v=20260812">
+<link rel="stylesheet" href="/css/style.css?v=20260808m">
 <script src="/js/ui.js"></script>
 </head>
 <body>
@@ -35,14 +35,13 @@
   </div>
 </div>
 
-<section class="section container" style="padding-top:0;padding-bottom:clamp(48px,7vw,96px)">
-  <div class="section-head" style="margin-bottom:0;align-items:flex-start">
-    <div>
-      <span class="eyebrow" style="margin-bottom:0;font-size:9px">Freshly baked</span>
-      <h2 id="menuTitle" style="font-size:clamp(14px,1.7vw,18px);line-height:1.05;margin-top:1px">The <span>menu</span></h2>
-      <p id="resultCount" style="margin-top:0;font-size:11px">Loading products…</p>
+<section class="section container menu-section">
+  <header class="menu-head">
+    <div class="menu-head-copy">
+      <h1 id="menuTitle">The <span>menu</span></h1>
+      <span id="resultCount" class="menu-count">Loading products…</span>
     </div>
-    <div style="display:flex;gap:11px;flex-wrap:wrap;align-items:center;margin-top:0">
+    <div class="menu-head-tools">
       <div class="search-wrap">
         <input id="searchBox" placeholder="Search cakes, breads, cookies…" aria-label="Search the menu">
         <span class="si">&#128269;</span>
@@ -57,9 +56,9 @@
         </select>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div id="couponStrip" class="coupon-strip hide" style="margin-bottom:0"></div>
+  <div id="couponStrip" class="coupon-strip hide"></div>
 
   <div class="menu-layout">
     <aside class="filters">
@@ -119,11 +118,54 @@ api('/coupons/active').then(({ coupons }) => {
       </div>`;
     }).join('') + `</div>`;
   strip.classList.remove('hide');
+  fitSoon();
 }).catch(() => {});
 
 function copyCoupon(code) {
   navigator.clipboard?.writeText(code).then(() => toast(`Coupon ${code} copied`, 'ok')).catch(() => toast(`Use code: ${code}`, 'ok'));
 }
+
+/* ---- Fit the first row of products above the fold -------------------------
+   A customer arriving from the nav should see row one complete - photo, name,
+   price and both buttons - without scrolling and without anything clipped.
+   Card height = photo + body, and the body is fixed by its content, so the
+   only lever is the photo. We measure where the grid actually starts (which
+   moves depending on whether the offers strip or filter chips are showing)
+   and give the photo whatever is left, inside sane limits.                  */
+const IMG_MIN = 132, IMG_MAX = 300, FOLD_GAP = 14;
+
+function fitFirstRow() {
+  const section = document.querySelector('.menu-section');
+  const grid = document.getElementById('grid');
+  if (!section || !grid) return;
+
+  // Distance from the top of the document, so the sum still holds if a re-fit
+  // fires after the customer has scrolled.
+  const top = grid.getBoundingClientRect().top + window.scrollY;
+
+  // Every card in a row stretches to the tallest one, so the row is governed by
+  // the tallest body in it - a card carrying a rating line or a "only 2 left"
+  // note is taller than a plain one. Measure across the whole first row.
+  const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
+  const bodies = [...grid.querySelectorAll('.card .card-body')].slice(0, cols);
+  const bodyH = bodies.length
+    ? Math.ceil(Math.max(...bodies.map(b => b.getBoundingClientRect().height)))
+    : (window.innerWidth <= 640 ? 138 : 152);
+
+  const room = window.innerHeight - top - bodyH - FOLD_GAP;
+  const px = Math.max(IMG_MIN, Math.min(IMG_MAX, Math.floor(room)));
+  section.style.setProperty('--menu-img-h', px + 'px');
+}
+
+/* Re-fit whenever the space above the grid changes. */
+let fitTimer;
+const refit = () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitFirstRow, 60); };
+window.addEventListener('resize', refit);
+window.addEventListener('orientationchange', refit);
+/* Fonts land after first paint and change the body height by a pixel or two. */
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFirstRow);
+/* Measure on the frame after the grid paints, so layout has settled. */
+const fitSoon = () => requestAnimationFrame(fitFirstRow);
 
 const params = new URLSearchParams(location.search);
 let state = { category: params.get('category') || 'all', search: params.get('search') || '',
@@ -168,6 +210,7 @@ function paintActiveFilters() {
       + (chips.length > 1 ? '<button class="afilter afilter-clear" onclick="location.href=\'/menu.html\'">Clear all</button>' : '')
     : '';
   host.hidden = !chips.length;
+  fitSoon();
 }
 
 function dropFilter(key) {
@@ -185,7 +228,18 @@ function dropFilter(key) {
 /* Paginated: 24 products per page, "Load more" fetches the next page so the
    first paint is fast even when the counter has hundreds of items. */
 const PAGE_SIZE = 24;
-let pageNum = 1, pageHasMore = false, loadingMore = false;
+let pageNum = 1, pageHasMore = false, loadingMore = false, totalCount = 0;
+
+/* One tidy line under the title: how much of the catalogue is on screen. */
+function paintResultCount() {
+  const el = document.getElementById('resultCount');
+  if (!el) return;
+  if (!totalCount) { el.textContent = 'No items matched your search'; return; }
+  const shown = Math.min(lastProducts.length, totalCount);
+  el.textContent = shown < totalCount
+    ? `Showing ${shown} of ${totalCount} items`
+    : `${totalCount} item${totalCount === 1 ? '' : 's'} available`;
+}
 
 async function load() {
   pageNum = 1;
@@ -202,14 +256,16 @@ async function load() {
   try {
     const { products, total, pages } = await api('/products?' + q);
     lastProducts = products;
+    totalCount = total || 0;
     pageHasMore = pageNum < pages;
-    document.getElementById('resultCount').textContent = total ? `${total} item${total === 1 ? '' : 's'} on the counter today` : 'Nothing matched that';
+    paintResultCount();
     paintActiveFilters();
     grid.innerHTML = products.length ? products.map(cardWithQuick).join('')
       : `<div class="empty" style="grid-column:1/-1"><div class="ei">&#128269;</div>
          <p>Nothing matched that search.<br>Try a broader word, or clear the filters.</p>
          <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="location.href='/menu.html'">Clear filters</button></div>`;
     document.getElementById('loadMoreBtn').style.display = pageHasMore ? '' : 'none';
+    fitSoon();
   } catch (e) {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>${esc(e.message)}</p>
       <button class="btn btn-outline btn-sm" style="margin-top:18px" onclick="load()">Try again</button></div>`;
@@ -231,6 +287,7 @@ async function loadMore() {
     lastProducts = lastProducts.concat(products);
     pageHasMore = pageNum < pages;
     document.getElementById('grid').insertAdjacentHTML('beforeend', products.map(cardWithQuick).join(''));
+    paintResultCount();
     btn.style.display = pageHasMore ? '' : 'none';
   } catch (e) { toast(e.message, 'err'); pageNum -= 1; }
   loadingMore = false;
@@ -257,6 +314,7 @@ async function loadFavourites() {
     lastProducts = products;
     grid.innerHTML = products.length ? products.map(cardWithQuick).join('')
       : `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9825;</div><p>Your saved items are no longer available.</p></div>`;
+    fitSoon();
   } catch (e) {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>${esc(e.message)}</p></div>`;
   }
