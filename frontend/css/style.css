@@ -670,7 +670,7 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 
 .card-img{
   position:relative;display:grid;place-items:center;overflow:hidden;
-  aspect-ratio:3/2;max-height:min(210px,27vh);
+  aspect-ratio:3/2;max-height:min(140px,20vh);
   background:var(--cream);border-radius:var(--r-lg) var(--r-lg) 0 0;
 }
 .card-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease)}
@@ -1006,20 +1006,20 @@ html{scrollbar-color:var(--gold) var(--cream);scrollbar-width:thin}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}}
 
 /* ---------- 21. COUPON STRIP ---------- */
-.coupon-strip{margin-bottom:8px}
-.coupon-head{font-family:var(--font-display);font-size:13px;font-weight:800;margin-bottom:5px;color:var(--ink)}
-.coupon-cards{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.coupon-strip{margin-bottom:6px}
+.coupon-head{font-family:var(--font-display);font-size:12px;font-weight:800;margin-bottom:3px;color:var(--ink)}
+.coupon-cards{display:flex;gap:10px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
 .coupon-cards::-webkit-scrollbar{display:none}
 .coupon-card{
-  flex-shrink:0;min-width:250px;display:flex;align-items:stretch;cursor:pointer;
+  flex-shrink:0;min-width:230px;display:flex;align-items:stretch;cursor:pointer;
   border-radius:var(--r);overflow:hidden;
   background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-xs);
   transition:transform .4s var(--ease),box-shadow .4s,border-color .35s;
 }
 .coupon-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-md);border-color:var(--gold)}
-.coupon-left{flex:1;padding:8px 14px;background:linear-gradient(135deg,var(--cream),var(--surface))}
-.coupon-val{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--primary)}
-.coupon-cond{font-size:10.5px;color:var(--ink-faint);margin-top:1px}
+.coupon-left{flex:1;padding:6px 12px;background:linear-gradient(135deg,var(--cream),var(--surface))}
+.coupon-val{font-family:var(--font-display);font-size:13.5px;font-weight:800;color:var(--primary)}
+.coupon-cond{font-size:10px;color:var(--ink-faint);margin-top:1px}
 .coupon-code{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:0 15px;position:relative;
