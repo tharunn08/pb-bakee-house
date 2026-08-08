@@ -99,6 +99,7 @@
       <h2>Our <span>bestsellers</span></h2>
       <p>The ones our regulars come back for.</p>
     </div>
+    <a href="/menu.html?favourites=1" class="btn btn-outline btn-sm">&#9825; View Your Favourites</a>
   </div>
   <div class="grid" id="featuredGrid">
     <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -355,30 +356,39 @@ if (window.SITE) fillHome(window.SITE);
 document.addEventListener('siteconfig', e => fillHome(e.detail));
 
 /* ---------- CATEGORY CARDS ---------- */
-/* Category artwork comes from a real product in that category — fetched live,
+/* Category artwork comes from real products in that category — fetched live,
    never hardcoded. If the admin later adds a dedicated category image the
-   same slot will use it (see `c.image` below, which takes priority). */
-let CAT_ART = {};
+   same slot will use it (see `c.image` below, which takes priority).
+   Every category keeps a small pool of product photos; once a minute a
+   random photo from that pool is swapped in, so the shelf feels alive. */
+let CAT_ART = {};       // category (lowercase) -> array of image URLs
+let CAT_FIXED = {};     // category (lowercase) -> admin-set image (never rotated)
+let catRotateTimer = null;
 
-/* Pull categories and a representative photo for each in one pass. */
+/* Pull categories and a representative photo pool for each in one pass. */
 Promise.all([
   /* /categories carries admin-uploaded artwork. If it is unavailable for any
      reason we fall back to the original endpoint, so the section never breaks. */
   api('/categories').catch(() => api('/products/categories')),
-  api('/products?limit=60'),
+  api('/products?limit=100'),
 ]).then(([{ categories }, { products }]) => {
   CAT_ART = {};
   (products || []).forEach(p => {
     const k = String(p.category || '').toLowerCase().trim();
-    if (k && p.image && !CAT_ART[k]) CAT_ART[k] = p.image;
+    if (!k || !p.image) return;
+    (CAT_ART[k] = CAT_ART[k] || []).push(p.image);
   });
+  CAT_FIXED = {};
+  (categories || []).forEach(c => { if (c.image) CAT_FIXED[String(c.name || '').toLowerCase().trim()] = c.image; });
 
   const el = document.getElementById('catChips');
   el.innerHTML = categories.length ? categories.map(c => {
-    // Priority: admin-set category image, then a real product photo, then a plain tile.
-    const art = c.image || CAT_ART[String(c.name || '').toLowerCase().trim()] || '';
+    const key = String(c.name || '').toLowerCase().trim();
+    const pool = CAT_ART[key] || [];
+    // Priority: admin-set category image, then a random real product photo, then a plain tile.
+    const art = CAT_FIXED[key] || pool[Math.floor(Math.random() * pool.length)] || '';
     return `
-    <a href="/menu.html?category=${encodeURIComponent(c.name)}" class="cat-card${art ? '' : ' cat-plain'}">
+    <a href="/menu.html?category=${encodeURIComponent(c.name)}" class="cat-card${art ? '' : ' cat-plain'}" data-cat-key="${esc(key)}">
       ${art ? `<img src="${esc(art)}" alt="${esc(c.name)}" loading="lazy">` : ''}
       <div class="cat-meta">
         <b>${esc(c.name)}</b>
@@ -387,7 +397,35 @@ Promise.all([
       <div class="cat-arrow">&rarr;</div>
     </a>`;
   }).join('') : '';
+
+  clearInterval(catRotateTimer);
+  catRotateTimer = setInterval(rotateCategoryArt, 60000);
 }).catch(() => {});
+
+/* Swap in a fresh random product photo for every category card that has
+   more than one option — admin-set category images are left untouched. */
+function rotateCategoryArt() {
+  document.querySelectorAll('.cat-card[data-cat-key]').forEach(card => {
+    const key = card.dataset.catKey;
+    if (CAT_FIXED[key]) return;                 // admin image is fixed, never rotated
+    const pool = CAT_ART[key] || [];
+    if (pool.length < 2) return;                // nothing to rotate to
+    const img = card.querySelector('img');
+    const next = pool[Math.floor(Math.random() * pool.length)];
+    if (!img) {
+      card.classList.remove('cat-plain');
+      const meta = card.querySelector('.cat-meta');
+      const fresh = document.createElement('img');
+      fresh.src = next; fresh.alt = card.querySelector('b')?.textContent || '';
+      fresh.loading = 'lazy';
+      card.insertBefore(fresh, meta);
+      return;
+    }
+    if (img.src === next) return;
+    img.style.opacity = '0';
+    setTimeout(() => { img.src = next; img.style.opacity = '1'; }, 260);
+  });
+}
 
 /* About-section artwork: real photos, picked from whatever is on the menu. */
 api('/products?limit=12').then(({ products }) => {
